@@ -238,4 +238,45 @@ module Provider
             :attribution => """{attribution.OpenStreetMap} &copy; <a href="http://cartodb.com/attributions">CartoDB</a>"""
         )
     )
+    """
+    options for `variant`: `MODIS_Terra_CorrectedReflectance_TrueColor`,
+    `VIIRS_CityLights_2012`, `MODIS_Terra_Land_Surface_Temp_Day`,
+    `MODIS_Terra_Snow_Cover`, `MODIS_Terra_Aerosol`, `MODIS_Terra_Chlorophyll_A`
+    """
+    function NASAGIBS(variant::Symbol = :MODIS_Terra_CorrectedReflectance_TrueColor)
+        provider = LeafletProvider(
+            "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/{variant}/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}",
+            Dict(
+                :bounds => [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
+                :minZoom => 1,
+                :maxZoom => 9,
+                :format => "jpg",
+                :time => "",
+                :variant => "$(variant)",
+                :tilematrixset => "GoogleMapsCompatible_Level",
+                :attribution => """Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ."""
+            )
+        )
+        if variant == :VIIRS_CityLights_2012
+            provider.options[:maxZoom] = 8
+        elseif variant == :MODIS_Terra_Land_Surface_Temp_Day
+            provider.options[:format] = "png"
+            provider.options[:maxZoom] = 7
+            provider.options[:opacity] = 0.75
+        elseif variant == :MODIS_Terra_Snow_Cover
+            provider.options[:format] = "png"
+            provider.options[:maxZoom] = 8
+            provider.options[:opacity] = 0.75
+        elseif variant == :MODIS_Terra_Aerosol
+            provider.options[:format] = "png"
+            provider.options[:maxZoom] = 6
+            provider.options[:opacity] = 0.75
+        elseif variant == :MODIS_Terra_Chlorophyll_A
+            provider.options[:format] = "png"
+            provider.options[:maxZoom] = 7
+            provider.options[:opacity] = 0.75
+        end
+        provider
+    end
+
 end
