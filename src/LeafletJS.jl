@@ -7,6 +7,7 @@ module LeafletJS
     export LeafletMap, Provider
 
     include("providers.jl")
+    include("layer.jl")
     include("render.jl")
 
 end # module

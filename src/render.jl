@@ -1,15 +1,15 @@
 type LeafletMap
+    layers::Vector{Layer}
     width::Int
     height::Int
     id::String
     center::Vector{Float64}
     zoom::Int
     provider::Provider.LeafletProvider
-    data::Vector
     kwargs::Vector
 
     function LeafletMap(
-            data::Vector,
+            layers::Vector{Layer},
             center::Vector{Float64};
             width::Int=900,
             height::Int=500,
@@ -17,8 +17,8 @@ type LeafletMap
             provider::Provider.LeafletProvider = Provider.Stamen(),
             kwargs...
         )
-        new(width, height, string(Base.Random.uuid4()),
-            center, zoom, provider, data, kwargs)
+        new(layers, width, height, string(Base.Random.uuid4()),
+            center, zoom, provider, kwargs)
     end
 end
 
@@ -45,35 +45,30 @@ function htmlhead(io::IOBuffer, p::LeafletMap)
 end
 
 function htmlscript(
-        io::IOBuffer, p::LeafletMap;
-        cmap::String = "YlGnBu",
-        alpha::Real = 1.0,
-        size::Real = 2.0,
-        bordercolor = "#000",
-        borderwidth::Real = 1.0
+        io::IOBuffer, p::LeafletMap
     )
     write(io, "var map = L.map('map$(p.id)').setView($(p.center), $(p.zoom));\n")
     write(io, "L.tileLayer(", Provider.url(p.provider), ",",
                               Provider.options(p.provider), ").addTo(map);\n")
-    for (i,data) in enumerate(p.data)
-        write(io, "var data$i = ", GeoJSON.geojson(data), ";\n")
+    for (i,layer) in enumerate(p.layers)
+        write(io, "var data$i = ", GeoJSON.geojson(layer.data), ";\n")
         write(io, """
         L.geoJson(data$i, {
             pointToLayer: function (feature, latlng) {
                 return L.circleMarker(latlng, {
-                    radius: $size,
-                    fillColor: chroma.scale("$cmap")(1),
-                    color: "$bordercolor",
-                    weight: $borderwidth,
-                    opacity: $alpha,
-                    fillOpacity: $alpha
+                    radius: $(layer.options[:size]),
+                    fillColor: chroma.scale("$(layer.options[:cmap])")(1),
+                    color: "$(layer.options[:bordercolor])",
+                    weight: $(layer.options[:borderwidth]),
+                    opacity: $(layer.options[:alpha]),
+                    fillOpacity: $(layer.options[:alpha])
                 })
             }
         }).addTo(map);\n
         """)
     end
     write(io, """
-    var group = new L.featureGroup($(["data$i" for i in 1:length(p.data)]));
+    var group = new L.featureGroup($(["data$i" for i in 1:length(p.layers)]));
     map.fitBounds(group.getBounds());\n
     """)
     return
