@@ -56,7 +56,7 @@ function htmlscript(
         L.geoJson(data$i, {
             pointToLayer: function (feature, latlng) {
                 return L.circleMarker(latlng, {
-                    radius: $(layer.options[:size]),
+                    radius: $(layer.options[:markersize]),
                     fillColor: chroma.scale("$(layer.options[:cmap])")(1),
                     color: "$(layer.options[:bordercolor])",
                     weight: $(layer.options[:borderwidth]),
