@@ -63,7 +63,13 @@ function htmlscript(
                     opacity: $(layer.options[:alpha]),
                     fillOpacity: $(layer.options[:alpha])
                 })
-            }
+            },
+            radius: $(layer.options[:markersize]),
+            fillColor: chroma.scale("$(layer.options[:cmap])")(1),
+            color: "$(layer.options[:bordercolor])",
+            weight: $(layer.options[:borderwidth]),
+            opacity: $(layer.options[:alpha]),
+            fillOpacity: $(layer.options[:alpha])
         }).addTo(map);\n
         """)
     end
