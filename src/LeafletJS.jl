@@ -4,7 +4,7 @@ module LeafletJS
     import GeoJSON, JSON
     import Colors
 
-    export LeafletMap, Provider
+    export LeafletMap, Layer, Provider
 
     include("providers.jl")
     include("layer.jl")

@@ -1,23 +1,20 @@
-type Layer
-    data
-    geom::Symbol
+type Layer{T}
+    data::T
     options::Dict{Symbol, Any}
+end
 
-    function Layer(
-            data,
-            geom::Symbol = :geometry0;
-            cmap::String = "YlGnBu",
-            alpha::Real = 1.0,
-            markersize::Real = 2.0,
-            bordercolor = "#000",
-            borderwidth::Real = 1.0
-        )
-        new(data, geom, Dict(
-            :cmap => cmap,
-            :alpha => alpha,
-            :markersize => markersize,
-            :bordercolor => bordercolor,
-            :borderwidth => borderwidth
-        ))
-    end
+function Layer{T}(
+        data::T;
+        cmap::String = "nothing",
+        color::Union{String,Symbol} = "blue",
+        alpha::Union{Real,Symbol} = 0.5,
+        markersize::Union{Real,Symbol} = 3.0,
+        borderwidth::Real = 2.0,
+        geom::Symbol = :geometry0 # default for geojson(::DataFrame)
+    )
+    options = Dict(
+        :cmap => cmap, :color => color, :alpha => alpha,
+        :markersize => markersize, :borderwidth => borderwidth, :geom => geom
+    )
+    Layer(data, options)
 end
