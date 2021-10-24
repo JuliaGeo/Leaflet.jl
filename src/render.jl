@@ -1,46 +1,54 @@
-type LeafletMap
-    layers::Vector{Layer}
+struct LeafletMap{L<:Vector{<:Layer},K,D}
+    layers::L
     width::Int
     height::Int
     id::String
     center::Vector{Float64}
     zoom::Int
     provider::Provider.LeafletProvider
-    kwargs::Vector
-
-    function LeafletMap(
-            layers::Vector{Layer},
-            center::Vector{Float64};
-            width::Int=900,
-            height::Int=500,
-            zoom::Int=11,
-            provider::Provider.LeafletProvider = Provider.Stamen(),
-            kwargs...
-        )
-        new(layers, width, height, string(Base.Random.uuid4()),
-            center, zoom, provider, kwargs)
-    end
+    draw::D
+    kwargs::K
+end
+function LeafletMap(;
+    layers::Vector{<:Layer}=Layer[],
+    center::Vector{Float64}=Float64[0.0, 0.0],
+    width::Int=900,
+    height::Int=500,
+    zoom::Int=11,
+    provider::Provider.LeafletProvider=Provider.Stamen(),
+    draw=false,
+    kwargs...
+)
+    id = string(UUIDs.uuid4())
+    LeafletMap(layers, width, height, id, center, zoom, provider, draw, kwargs)
 end
 
 function openurl(url::String)
-    @static if is_apple() run(`open $url`) end
-    @static if is_windows() run(`cmd /c start $url`) end
-    @static if is_linux()   run(`xdg-open $url`) end
+    @static if Sys.isapple() run(`open $url`) end
+    @static if Sys.iswindows() run(`cmd /c start $url`) end
+    @static if Sys.islinux() run(`xdg-open $url`) end
 end
 
 function htmlhead(io::IOBuffer, p::LeafletMap)
     write(io, """
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
-    integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
-    crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
-    integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
-    crossorigin=""></script>
+    <!-- Leaflet stylesheets/javascript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.3/chroma.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
     <style>
     #map$(p.id){ width: $(p.width)px; height: $(p.height)px; }
     </style>
+    """)
+
+    p.draw && write(io, """
+    <!-- Leaflet.draw main plug in files -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js" crossorigin=""></script>
     """)
     return
 end
@@ -71,19 +79,16 @@ function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol
         write(io, "fillColor: chroma.scale(\"accent\")(feature.properties.$color).hex()")
     end
     write(io, "}")
-    String(io)
+    String(take!(io))
 end
 
-function htmlscript(
-        io::IOBuffer, p::LeafletMap
-    )
+function htmlscript( io::IOBuffer, p::LeafletMap)
     write(io, "var map = L.map('map$(p.id)').setView($(p.center), $(p.zoom));\n")
     write(io, "L.tileLayer(", Provider.url(p.provider), ",",
                               Provider.options(p.provider), ").addTo(map);\n")
+
     for (i,layer) in enumerate(p.layers)
-        write(io, "var data$i = ",
-            GeoJSON.geojson(layer.data, geom=layer.options[:geom]),
-        ";\n")
+        write(io, "var data$i = ", GeoJSON.write(layer.data), ";\n")
         if layer.options[:color] != "nothing"
             color = layer.options[:color]
             if isa(color, Symbol)
@@ -164,6 +169,24 @@ function htmlscript(
         }).addTo(map);\n
         """)
     end
+    p.draw && write(io, """
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+    var drawControl = new L.Control.Draw({
+    """,
+    # p.draw,
+    """
+        edit: {
+            featureGroup: drawnItems,
+            remove: false
+        }
+    });
+    map.addControl(drawControl);
+    var shapes = {
+        "Shapes": drawnItems
+    };
+    L.control.layers(shapes).addTo(map);
+    """)
     # write(io, """
     # var group = new L.featureGroup($(["data$i" for i in 1:length(p.layers)]));
     # map.fitBounds(group.getBounds());\n
@@ -181,7 +204,7 @@ function htmlbody(io::IOBuffer, p::LeafletMap; kwargs...)
     return
 end
 
-function genhtml(p::LeafletMap, id::String; kwargs...)
+function genhtml(p::LeafletMap, id::String=string(UUIDs.uuid4()); kwargs...)
     io = IOBuffer()
     write(io, """
     <html>
@@ -197,21 +220,21 @@ function genhtml(p::LeafletMap, id::String; kwargs...)
     </body>
     </html>
     """)
-    String(io)
+    String(take!(io))
 end
 
 function writehtml(io::IO, p::LeafletMap)
-    print(io, genhtml(p, string(Base.Random.uuid4())))
+    print(io, genhtml(p))
     return
 end
 
-function Base.show(io::IO, ::MIME"text/html", p::LeafletMap)
-    display("text/html", genhtml(p, string(Base.Random.uuid4())))
+function Base.show(io::IO, mime::MIME"text/html", p::LeafletMap)
+    print(io, genhtml(p))
 end
 
 function Base.show(io::IO, p::LeafletMap)
     if displayable("text/html")
-        p
+        Base.show(io, MIME"text/html"(), p)
     else
         tmppath = string(tempname(), ".leafletmap.html")
         open(tmppath, "w") do f
