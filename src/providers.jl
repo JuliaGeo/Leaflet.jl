@@ -12,6 +12,11 @@ module Provider
 
 import JSON3
 
+"""
+    LeafletProvider
+- `url`:
+- `options`:
+"""
 struct LeafletProvider
     url::String
     options::Dict{Symbol,Any}

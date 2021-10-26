@@ -4,6 +4,7 @@ import Base.show
 import GeoJSON, JSON3
 import Colors
 import UUIDs
+using WebIO
 
 export LeafletMap, Layer, Provider
 

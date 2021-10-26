@@ -1,13 +1,34 @@
-struct LeafletMap{L<:Vector{<:Layer},K,D}
-    layers::L
+
+# Internal config object
+struct LeafletConfig{P}
     width::Int
     height::Int
-    id::String
     center::Vector{Float64}
     zoom::Int
-    provider::Provider.LeafletProvider
-    draw::D
-    kwargs::K
+    provider::P
+    draw::Bool
+    id::String
+end
+
+"""
+    LeafletMap(; kw...)
+
+A leaflet map object that will render as HTML/Javascript.
+
+# Keyword arguments
+
+- `layers::Vector{<:Layer}=Layer[]`: polygon layers.
+- `center::Vector{Float64}=Float64[0.0, 0.0]`: center coordinate.
+- `width::Int=900`: map width in pixels.
+- `height::Int=500`: map height in pixels.
+- `zoom::Int=11`: default zoom level.
+- `provider=Provider.OSM()`: base layer provider.
+- `draw::Bool=false`: show polygon drawing tools.
+"""
+struct LeafletMap{L<:Vector{<:Layer},C,S}
+    layers::L
+    config::C
+    scope::S
 end
 function LeafletMap(;
     layers::Vector{<:Layer}=Layer[],
@@ -15,79 +36,64 @@ function LeafletMap(;
     width::Int=900,
     height::Int=500,
     zoom::Int=11,
-    provider::Provider.LeafletProvider=Provider.Stamen(),
+    provider=Provider.Stamen(),
     draw=false,
-    kwargs...
 )
     id = string(UUIDs.uuid4())
-    LeafletMap(layers, width, height, id, center, zoom, provider, draw, kwargs)
+    conf = LeafletConfig(width, height, center, zoom, provider, draw, id)
+    return LeafletMap(layers, conf, leaflet_scope(layers, conf))
 end
 
-function openurl(url::String)
-    @static if Sys.isapple() run(`open $url`) end
-    @static if Sys.iswindows() run(`cmd /c start $url`) end
-    @static if Sys.islinux() run(`xdg-open $url`) end
+# WebIO rendering interface
+@WebIO.register_renderable(LeafletMap) do map
+    return WebIO.render(map.scope)
 end
 
-function htmlhead(io::IOBuffer, p::LeafletMap)
-    write(io, """
-    <!-- Leaflet stylesheets/javascript -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-      crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-      crossorigin=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.3/chroma.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
-    <style>
-    #map$(p.id){ width: $(p.width)px; height: $(p.height)px; }
-    </style>
-    """)
+# return the html head/body and javascriopt for a leaflet map
+function leaflet_scope(layers, cfg::LeafletConfig)
+    # Define online assets
+    urls = [
+        "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.3/chroma.min.js",
+        "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js",
+        "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css", 
+        "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css", 
+    ]
+    assets = Asset.(urls)
 
-    p.draw && write(io, """
-    <!-- Leaflet.draw main plug in files -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js" crossorigin=""></script>
-    """)
-    return
+    # Define the div the map goes in.
+    mapdiv = node(:div, 
+        node(:div, "";
+            id="map$(cfg.id)",
+            style=Dict(
+                "flex" => 5,
+                "position " => "relative",
+                "display" => "flex",
+            )
+        );
+        style=Dict(
+            "display" =>"flex",
+            "flex-direction" => "column-reverse",
+            "min-height" => "400px",
+        )
+    )
+
+    # The javascript scope
+    scope = Scope(; dom=mapdiv, imports=assets)
+    # leaflet javascript we run as a callback on load
+    mapjs = leaflet_javascript(layers, cfg)
+    onimport(scope, mapjs)
+    return scope
 end
 
-option2style(attribute::Real) = string(attribute)
-option2style(attribute::String) = "\"$attribute\""
-option2style(attribute::Symbol) = "feature.properties.$attribute"
-
-function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol)
+# generate the leaflet javascript
+#
+# Returns a WebIO.JSString that holds a 
+# javascript callback function for use in `WebIO.onimport`
+function leaflet_javascript(layers, cfg::LeafletConfig)
     io = IOBuffer()
-    write(io, "{\n")
-    write(io, "radius: ", option2style(options[:markersize]), ",\n")
-    write(io, "color: ", option2style(options[:color]), ",\n")
-    write(io, "weight: ", option2style(options[:borderwidth]), ",\n")
-    write(io, "opacity: ", option2style(options[:alpha]), ",\n")
-    write(io, "fillOpacity: ", option2style(options[:alpha]), ",\n")
-    color = options[:color]
-    if isa(color, String)
-        @assert colortype == :nothing
-        write(io, "fillColor: ", option2style(color))
-    elseif options[:cmap] != "nothing"
-        write(io, "fillColor: chroma.scale(",option2style(options[:cmap]),")(feature.properties.$color).hex()")
-    elseif colortype == :sequential
-        write(io, "fillColor: chroma.scale(\"YlGnBu\")(feature.properties.$color).hex()")
-    elseif colortype == :diverging
-        write(io, "fillColor: chroma.scale(\"RdYlBu\")(feature.properties.$color).hex()")
-    elseif colortype == :categorical
-        write(io, "fillColor: chroma.scale(\"accent\")(feature.properties.$color).hex()")
-    end
-    write(io, "}")
-    String(take!(io))
-end
-
-function htmlscript( io::IOBuffer, p::LeafletMap)
-    write(io, "var map = L.map('map$(p.id)').setView($(p.center), $(p.zoom));\n")
-    write(io, "L.tileLayer(", Provider.url(p.provider), ",",
-                              Provider.options(p.provider), ").addTo(map);\n")
-
-    for (i,layer) in enumerate(p.layers)
+    for (i, layer) in enumerate(layers)
         write(io, "var data$i = ", GeoJSON.write(layer.data), ";\n")
         if layer.options[:color] != "nothing"
             color = layer.options[:color]
@@ -169,78 +175,77 @@ function htmlscript( io::IOBuffer, p::LeafletMap)
         }).addTo(map);\n
         """)
     end
-    p.draw && write(io, """
-    var drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
-    var drawControl = new L.Control.Draw({
-    """,
-    # p.draw,
-    """
-        edit: {
-            featureGroup: drawnItems,
-            remove: false
-        }
-    });
-    map.addControl(drawControl);
-    var shapes = {
-        "Shapes": drawnItems
-    };
-    L.control.layers(shapes).addTo(map);
-    """)
-    # write(io, """
-    # var group = new L.featureGroup($(["data$i" for i in 1:length(p.layers)]));
-    # map.fitBounds(group.getBounds());\n
-    # """)
-    return
-end
 
-function htmlbody(io::IOBuffer, p::LeafletMap; kwargs...)
-    write(io, """
-    <div id="map$(p.id)"></div>
-    <script>
-    """)
-    htmlscript(io, p; kwargs...)
-    write(io, "</script>")
-    return
-end
-
-function genhtml(p::LeafletMap, id::String=string(UUIDs.uuid4()); kwargs...)
-    io = IOBuffer()
-    write(io, """
-    <html>
-    <head>
-    """)
-    htmlhead(io, p)
-    write(io, """
-    </head>
-    <body>
-    """)
-    htmlbody(io, p; p.kwargs...)
-    write(io, """
-    </body>
-    </html>
-    """)
-    String(take!(io))
-end
-
-function writehtml(io::IO, p::LeafletMap)
-    print(io, genhtml(p))
-    return
-end
-
-function Base.show(io::IO, mime::MIME"text/html", p::LeafletMap)
-    print(io, genhtml(p))
-end
-
-function Base.show(io::IO, p::LeafletMap)
-    if displayable("text/html")
-        Base.show(io, MIME"text/html"(), p)
+    layerjs = if length(layers) > 0 
+        String(take!(io)) * """
+        var group = new L.featureGroup([$(join(("data$i" for i in 1:length(layers)), ", "))]);
+        map.fitBounds(group.getBounds());\n
+        """ 
     else
-        tmppath = string(tempname(), ".leafletmap.html")
-        open(tmppath, "w") do f
-            writehtml(f, p)
-        end
-        openurl(tmppath)
+        ""
     end
-    return
+
+    drawjs = if cfg.draw 
+        """
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems,
+                remove: false
+            }
+        });
+        map.addControl(drawControl);
+        var shapes = {
+            "Shapes": drawnItems
+        };
+        L.control.layers(shapes).addTo(map);
+        """
+    else
+        ""
+    end
+
+    url = Provider.url(cfg.provider)
+    options = JSON3.write(Provider.options(cfg.provider))
+
+    callback = """
+    function(p) {
+        var map = L.map('map$(cfg.id)').setView($(cfg.center), $(cfg.zoom));
+        L.tileLayer($url,$options).addTo(map);
+        $drawjs
+        $layerjs
+    }
+    """
+
+    @show callback
+    return WebIO.JSString(callback)
+end
+
+option2style(attribute::Real) = string(attribute)
+option2style(attribute::String) = "\"$attribute\""
+option2style(attribute::Symbol) = "feature.properties.$attribute"
+
+function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol)
+    io = IOBuffer()
+    write(io, "{\n")
+    write(io, "radius: ", option2style(options[:markersize]), ",\n")
+    write(io, "color: ", option2style(options[:color]), ",\n")
+    write(io, "weight: ", option2style(options[:borderwidth]), ",\n")
+    write(io, "opacity: ", option2style(options[:alpha]), ",\n")
+    write(io, "fillOpacity: ", option2style(options[:alpha]), ",\n")
+    color = options[:color]
+    if isa(color, String)
+        @assert colortype == :nothing
+        write(io, "fillColor: ", option2style(color))
+    elseif options[:cmap] != "nothing"
+        write(io, "fillColor: chroma.scale(", option2style(options[:cmap]),")(feature.properties.$color).hex()")
+    elseif colortype == :sequential
+        write(io, "fillColor: chroma.scale(\"YlGnBu\")(feature.properties.$color).hex()")
+    elseif colortype == :diverging
+        write(io, "fillColor: chroma.scale(\"RdYlBu\")(feature.properties.$color).hex()")
+    elseif colortype == :categorical
+        write(io, "fillColor: chroma.scale(\"accent\")(feature.properties.$color).hex()")
+    end
+    write(io, "}")
+    String(take!(io))
 end
