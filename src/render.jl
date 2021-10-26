@@ -36,7 +36,7 @@ function LeafletMap(;
     width::Int=900,
     height::Int=500,
     zoom::Int=11,
-    provider=Provider.Stamen(),
+    provider=Provider.OSM(),
     draw=false,
 )
     id = string(UUIDs.uuid4())
