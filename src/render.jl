@@ -54,11 +54,11 @@ function leaflet_scope(layers, cfg::LeafletConfig)
     # Define online assets
     urls = [
         "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
+        "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css", 
         "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js",
         "https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.3/chroma.min.js",
-        "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js",
-        "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css", 
-        "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css", 
+        # "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js",
+        # "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css", 
     ]
     assets = Asset.(urls)
 
@@ -217,7 +217,6 @@ function leaflet_javascript(layers, cfg::LeafletConfig)
     }
     """
 
-    @show callback
     return WebIO.JSString(callback)
 end
 

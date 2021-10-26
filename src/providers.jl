@@ -93,12 +93,12 @@ OpenTopoMap() = LeafletProvider(
 Options for `variant`: `cycle` (default), `transport`, `transport-dark`,
 `spinal-map`, `landscape`, `outdoors`, `pioneer`
 """
-Thunderforest(apikey, variant::Symbol = :cycle) = LeafletProvider(
+Thunderforest(apikey, variant::Symbol=:cycle) = LeafletProvider(
     "http://{s}.tile.thunderforest.com/{variant}/{z}/{x}/{y}.png?apikey={apikey}",
     Dict{Symbol,Any}(
         :maxZoom => 22,
         :variant => "$(variant)",
-        :apikey => apikey
+        :apikey => apikey,
         :attribution => """&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, {attribution.OpenStreetMap}',"""
     )
 )
