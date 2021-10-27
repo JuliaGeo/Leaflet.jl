@@ -178,7 +178,7 @@ function EarthEngineLayer(eeurl::String)
     provider = LeafletProvider(
         eeurl,
         Dict{Symbol,Any}(
-            :maxZoom => 20
+            :maxZoom => 20,
             :attribution => """&copy; <a href="https://earthengine.google.com/terms/">Google Earth Engine</a>"""
         )
     )
