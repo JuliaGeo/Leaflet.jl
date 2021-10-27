@@ -174,12 +174,12 @@ end
 options to add tile layer generated in Google Earth Engine
 """
 
-function EELayer(eeurl::String)
+function EarthEngineLayer(eeurl::String)
     provider = LeafletProvider(
         eeurl,
         Dict{Symbol,Any}(
             :maxZoom => 20
-            # :attribution => """&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>"""
+            :attribution => """&copy; Google"""
         )
     )
     return provider
