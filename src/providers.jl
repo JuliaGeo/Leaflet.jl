@@ -153,6 +153,7 @@ function Stamen(variant::Symbol = :toner)
             :attribution => """Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>"""
         )
     )
+<<<<<<< Updated upstream
     if variant == :watercolor
         provider.options[:minZoom] = 1
         provider.options[:maxZoom] = 16
@@ -165,6 +166,62 @@ function Stamen(variant::Symbol = :toner)
     elseif variant == Symbol("toposm-features")
         provider.options[:opacity] = 0.9
         provider.options[:bounds] = [[22, -132], [51, -56]]
+=======
+
+
+
+
+
+    """
+    options to add tile layer generated in Google Earth Engine
+    """
+
+    function EELayer(eeurl::String)
+        provider = LeafletProvider(
+            eeurl,
+            Dict{Symbol,Any}(
+                :maxZoom => 20
+                # :attribution => """&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>"""
+            )
+        )
+        return provider
+    end
+
+
+
+
+    """
+    options for `variant`: `toner` (default), `toner-background`, `toner-hybrid`,
+    `toner-lines`, `toner-labels`, `toner-lite`, `watercolor`, `terrain`,
+    `terrain-background`, `toposm-color-relief`, `toposm-features`
+    """
+    function Stamen(variant::Symbol = :toner)
+        provider = LeafletProvider(
+            "http://stamen-tiles-{s}.a.ssl.fastly.net/{variant}/{z}/{x}/{y}.{ext}",
+            Dict{Symbol,Any}(
+                :subdomains => "abcd",
+                :minZoom => 0,
+                :maxZoom => 20,
+                :variant => "$(variant)",
+                :ext => "png",
+                :attribution => """Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>"""
+            )
+        )
+        if variant == :watercolor
+            provider.options[:minZoom] = 1
+            provider.options[:maxZoom] = 16
+        elseif variant == :terrain || variant == Symbol("terrain-background")
+            provider.options[:minZoom] = 0
+            provider.options[:maxZoom] = 18
+        elseif variant == Symbol("toposm-color-relief")
+            provider.options[:ext] = "jpg'"
+            provider.options[:bounds] = [[22, -132], [51, -56]]
+        elseif variant == Symbol("toposm-features")
+            provider.options[:opacity] = 0.9
+            provider.options[:bounds] = [[22, -132], [51, -56]]
+        end
+        provider
+>>>>>>> Stashed changes
     end
     return provider
 end
@@ -288,3 +345,9 @@ function NASAGIBS(variant::Symbol = :MODIS_Terra_CorrectedReflectance_TrueColor)
 end
 
 end
+<<<<<<< Updated upstream
+=======
+
+
+
+>>>>>>> Stashed changes
