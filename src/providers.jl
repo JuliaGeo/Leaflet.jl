@@ -179,7 +179,7 @@ function EarthEngineLayer(eeurl::String)
         eeurl,
         Dict{Symbol,Any}(
             :maxZoom => 20
-            :attribution => """&copy; Google"""
+            :attribution => """&copy; <a href="https://earthengine.google.com/terms/">Google Earth Engine</a>"""
         )
     )
     return provider
