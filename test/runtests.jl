@@ -6,43 +6,44 @@
 using LeafletJS
 using Test
 using WebIO
+prov = Provider.OSM()
+prov = Provider.OSMFrance()
+prov = Provider.OSMDE()
+prov = Provider.OSMToner()
+prov = Provider.OSMWatercolor()
+prov = Provider.OpenTopoMap()
+prov = Provider.CARTO()
+prov = Provider.Esri()
+prov = Provider.NASAGIBS()
+prov = Provider.Stamen()
+prov = Provider.Stamen(:watercolor)
+prov = Provider.Thunderforest("someapikey")
+prov = Provider.MapBox("sometoken")
+owm_apikey = "75ae7055ab997a96d613465c98a9333d"
+prov = Provider.OpenWeatherMap(owm_apikey, :clouds)
+prov = Provider.CARTO(:light_all)
 
-osm = Provider.OSM()
-osm_bw = Provider.OSMBlackAndWhite()
-osm_france = Provider.OSMDE()
-osm_de = Provider.OSMDE()
-otm = Provider.OpenTopoMap()
-carto = Provider.CARTO()
-esri = Provider.Esri()
-thunderforest = Provider.Thunderforest("someapikey")
-mapbox = Provider.MapBox("sometoken")
+# These don't seem to work out of the box ?
+prov = Provider.OpenSeaMap() # Not working?
+prov = Provider.Hydda() # Not working?
 
-# These dn't seem to work out of the box ?
-owm = Provider.OpenWeatherMap()
-stamen = Provider.Stamen() # Not working?
-osm = Provider.OpenSeaMap() # Not working?
-hydda = Provider.Hydda() # Not working?
+google = Provider.Google(:hybrid)
 
-
-map = LeafletMap(; provider=osm_bw, zoom=3);
-# Notebooks currently needs this to work, I'm not sure why
-WebIO.render(map)
-
-
+m = LeafletMap(; provider=prov, zoom=3, height=1000, draw=true);
+# Notebooks currently needs thi to work, I'm not sure why
+WebIO.render(m);
 # Other options
-
 # Blink window
 using Blink
 w = Blink.Window()
-body!(w, map)
-
+body!(w, m)
 
 # Mux server
 using Mux
 function app(req)
     return WebIO.render(map)
 end
-port = 8000
+port = 8003
 x = WebIO.webio_serve(Mux.page("/", request -> app(request)), port)
 
 # Open a browser at localhost:8000

@@ -57,36 +57,48 @@ function leaflet_scope(layers, cfg::LeafletConfig)
         "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css", 
         "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js",
         "https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.3/chroma.min.js",
-        # "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js",
-        # "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css", 
     ]
+
     assets = Asset.(urls)
 
+    if cfg.draw 
+        drawassets = Asset.([
+            "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js",
+            "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"
+        ])
+        drawscopes = (Scope(; imports = drawassets),)
+    else
+        drawscopes = ()
+    end
+
     # Define the div the map goes in.
-    mapdiv = node(:div, 
-        node(:div, "";
-            id="map$(cfg.id)",
-            style=Dict(
-                "flex" => 5,
-                "position " => "relative",
-                "display" => "flex",
-            )
-        );
+    mapnode = Node(:div, "";
+        id="map$(cfg.id)",
+        style=Dict(
+            "flex" => 5,
+            "position " => "relative",
+            "display" => "flex",
+        )
+    )
+
+    # Define a wrapper div for sizing
+    wrapperdiv = Node(:div, mapnode, drawscopes...;
         style=Dict(
             "display" =>"flex",
             "flex-direction" => "column-reverse",
-            "min-height" => "400px",
+            "min-height" => "$(cfg.height)px",
         )
     )
 
     # The javascript scope
-    scope = Scope(; dom=mapdiv, imports=assets)
+    scope = Scope(; dom=wrapperdiv, imports=assets)
     # leaflet javascript we run as a callback on load
     mapjs = leaflet_javascript(layers, cfg)
     onimport(scope, mapjs)
     return scope
 end
 
+# leaflet_javascript
 # generate the leaflet javascript
 #
 # Returns a WebIO.JSString that holds a 
@@ -185,35 +197,48 @@ function leaflet_javascript(layers, cfg::LeafletConfig)
         ""
     end
 
-    drawjs = if cfg.draw 
-        """
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
-        var drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems,
-                remove: false
-            }
-        });
-        map.addControl(drawControl);
-        var shapes = {
-            "Shapes": drawnItems
-        };
-        L.control.layers(shapes).addTo(map);
-        """
-    else
-        ""
-    end
+    drawjs = ""
+    # drawjs = if cfg.draw 
+    #     """
+    #     function addDrawTools(){
+    #         var drawnItems = new L.FeatureGroup();
+    #         map.addLayer(drawnItems);
+    #         var drawControl = new L.Control.Draw({
+    #             edit: {
+    #                 featureGroup: drawnItems,
+    #                 remove: false
+    #             }
+    #         });
+    #         map.addControl(drawControl);
+    #         var shapes = {
+    #             "Shapes": drawnItems
+    #         };
+    #         L.control.layers(shapes).addTo(map);
+    #     }
 
-    url = Provider.url(cfg.provider)
-    options = JSON3.write(Provider.options(cfg.provider))
+    #     if(document.readyState==='loading'){
+    #         document.addEventListener('DOMContentLoaded',addDrawTools);
+    #     } else {
+    #         // DOMContentLoaded already loaded, so better trigger your function
+    #         addDrawTools();
+    #     }
+    #     addDrawTools();
+    #     """
+    # else
+    #     ""
+    # end
+
+    prov = cfg.provider
+    url = JSON3.write(prov.url)
+    options = JSON3.write(prov.options)
+    @show options
 
     callback = """
     function(p) {
         var map = L.map('map$(cfg.id)').setView($(cfg.center), $(cfg.zoom));
         L.tileLayer($url,$options).addTo(map);
-        $drawjs
         $layerjs
+        $drawjs
     }
     """
 
@@ -246,5 +271,5 @@ function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol
         write(io, "fillColor: chroma.scale(\"accent\")(feature.properties.$color).hex()")
     end
     write(io, "}")
-    String(take!(io))
+    return String(take!(io))
 end
