@@ -10,6 +10,6 @@ export LeafletMap, Layer, Provider
 
 include("providers.jl")
 include("layer.jl")
-include("render.jl")
+include("map.jl")
 
 end # module
