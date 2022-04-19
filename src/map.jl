@@ -6,7 +6,6 @@ struct LeafletConfig{P}
     center::Vector{Float64}
     zoom::Int
     provider::P
-    draw::Bool
     id::String
 end
 
@@ -17,30 +16,39 @@ A leaflet map object that will render as HTML/Javascript.
 
 # Keyword arguments
 
-- `layers::Vector{<:Layer}=Layer[]`: polygon layers.
-- `center::Vector{Float64}=Float64[0.0, 0.0]`: center coordinate.
-- `width::Int=900`: map width in pixels.
-- `height::Int=500`: map height in pixels.
-- `zoom::Int=11`: default zoom level.
-- `provider=Provider.OSM()`: base layer provider.
-- `draw::Bool=false`: show polygon drawing tools.
+- `provider = Providers.OSM()`: base layer [`LeafletProvider`](@ref).
+- `layers`: [`LeafletLayer`](@ref) or `Vector{LeafletLayer}`.
+- `center::Vector{Float64} = Float64[0.0, 0.0]`: center coordinate.
+- `width::Int = 900`: map width in pixels.
+- `height::Int = 500`: map height in pixels.
+- `zoom::Int = 11`: default zoom level.
+
+# Example
+
+```julia
+using LeafletJS
+prov = Leaflet.OSM()
+
+```
 """
-struct LeafletMap{L<:Vector{<:Layer},C,S}
+struct LeafletMap{L<:Vector{<:LeafletLayer},C,S}
     layers::L
     config::C
     scope::S
 end
 function LeafletMap(;
-    layers::Vector{<:Layer}=Layer[],
+    layers=LeafletLayer[],
     center::Vector{Float64}=Float64[0.0, 0.0],
     width::Int=900,
     height::Int=500,
     zoom::Int=11,
-    provider=Provider.OSM(),
-    draw=false,
+    provider=Providers.OSM(),
 )
+    if layers isa Layer
+        layers = [layers]
+    end
     id = string(UUIDs.uuid4())
-    conf = LeafletConfig(width, height, center, zoom, provider, draw, id)
+    conf = LeafletConfig(width, height, center, zoom, provider, id)
     return LeafletMap(layers, conf, leaflet_scope(layers, conf))
 end
 
@@ -61,16 +69,6 @@ function leaflet_scope(layers, cfg::LeafletConfig)
 
     assets = Asset.(urls)
 
-    if cfg.draw 
-        drawassets = Asset.([
-            "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js",
-            "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"
-        ])
-        drawscopes = (Scope(; imports = drawassets),)
-    else
-        drawscopes = ()
-    end
-
     # Define the div the map goes in.
     mapnode = Node(:div, "";
         id="map$(cfg.id)",
@@ -82,7 +80,7 @@ function leaflet_scope(layers, cfg::LeafletConfig)
     )
 
     # Define a wrapper div for sizing
-    wrapperdiv = Node(:div, mapnode, drawscopes...;
+    wrapperdiv = Node(:div, mapnode;
         style=Dict(
             "display" =>"flex",
             "flex-direction" => "column-reverse",
@@ -106,7 +104,14 @@ end
 function leaflet_javascript(layers, cfg::LeafletConfig)
     io = IOBuffer()
     for (i, layer) in enumerate(layers)
-        write(io, "var data$i = ", GeoJSON.write(layer.data), ";\n")
+        data = if layer.data isa Vector
+            GeoInterface.FeatureCollection(GeoInterface.Feature.(skipmissing(layer.data)))
+        elseif layer.data isa GeoInterface.Feature || layer.data isa GeoInterface.FeatureCollection
+            layer.data
+        else
+            GeoInterface.Feature(layer.data)
+        end
+        write(io, "var data$i = ", GeoJSON.write(data), ";\n")
         if layer.options[:color] != "nothing"
             color = layer.options[:color]
             if isa(color, Symbol)
@@ -197,48 +202,15 @@ function leaflet_javascript(layers, cfg::LeafletConfig)
         ""
     end
 
-    drawjs = ""
-    # drawjs = if cfg.draw 
-    #     """
-    #     function addDrawTools(){
-    #         var drawnItems = new L.FeatureGroup();
-    #         map.addLayer(drawnItems);
-    #         var drawControl = new L.Control.Draw({
-    #             edit: {
-    #                 featureGroup: drawnItems,
-    #                 remove: false
-    #             }
-    #         });
-    #         map.addControl(drawControl);
-    #         var shapes = {
-    #             "Shapes": drawnItems
-    #         };
-    #         L.control.layers(shapes).addTo(map);
-    #     }
-
-    #     if(document.readyState==='loading'){
-    #         document.addEventListener('DOMContentLoaded',addDrawTools);
-    #     } else {
-    #         // DOMContentLoaded already loaded, so better trigger your function
-    #         addDrawTools();
-    #     }
-    #     addDrawTools();
-    #     """
-    # else
-    #     ""
-    # end
-
     prov = cfg.provider
     url = JSON3.write(prov.url)
     options = JSON3.write(prov.options)
-    @show options
 
     callback = """
     function(p) {
         var map = L.map('map$(cfg.id)').setView($(cfg.center), $(cfg.zoom));
         L.tileLayer($url,$options).addTo(map);
         $layerjs
-        $drawjs
     }
     """
 
@@ -255,10 +227,10 @@ function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol
     write(io, "radius: ", option2style(options[:markersize]), ",\n")
     write(io, "color: ", option2style(options[:color]), ",\n")
     write(io, "weight: ", option2style(options[:borderwidth]), ",\n")
-    write(io, "opacity: ", option2style(options[:alpha]), ",\n")
-    write(io, "fillOpacity: ", option2style(options[:alpha]), ",\n")
+    write(io, "opacity: ", option2style(options[:opacity]), ",\n")
+    write(io, "fillOpacity: ", option2style(options[:fill_opacity]), ",\n")
     color = options[:color]
-    if isa(color, String)
+    if color isa String
         @assert colortype == :nothing
         write(io, "fillColor: ", option2style(color))
     elseif options[:cmap] != "nothing"

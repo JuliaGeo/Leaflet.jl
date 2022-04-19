@@ -6,32 +6,34 @@
 using LeafletJS
 using Test
 using WebIO
-prov = Provider.OSM()
-prov = Provider.OSMFrance()
-prov = Provider.OSMDE()
-prov = Provider.OSMToner()
-prov = Provider.OSMWatercolor()
-prov = Provider.OpenTopoMap()
-prov = Provider.CARTO()
-prov = Provider.Esri()
-prov = Provider.NASAGIBS()
-prov = Provider.Stamen()
-prov = Provider.Stamen(:watercolor)
-prov = Provider.Thunderforest("someapikey")
-prov = Provider.MapBox("sometoken")
-owm_apikey = "75ae7055ab997a96d613465c98a9333d"
-prov = Provider.OpenWeatherMap(owm_apikey, :clouds)
-prov = Provider.CARTO(:light_all)
+using Shapefile
+using GADM
+using GeoInterface
+prov = LeafletJS.OSM()
+prov = LeafletJS.OSMFrance()
+prov = LeafletJS.OSMDE()
+prov = LeafletJS.OpenTopoMap()
+prov = LeafletJS.CARTO()
+prov = LeafletJS.Esri()
+prov = LeafletJS.NASAGIBS()
+prov = LeafletJS.Stamen()
+prov = LeafletJS.Stamen(:watercolor)
+prov = LeafletJS.Thunderforest("someapikey")
+prov = LeafletJS.MapBox("sometoken")
+prov = LeafletJS.CARTO(:light_all)
+prov = LeafletJS.Google(:hybrid)
+# prov = Providers.OpenWeatherMap("someapikey", :clouds)
 
-# These don't seem to work out of the box ?
-prov = Provider.OpenSeaMap() # Not working?
-prov = Provider.Hydda() # Not working?
-
-google = Provider.Google(:hybrid)
-
+shp = Shapefile.Handle("/home/raf/PhD/Mauritius/MauritiusExtinctions/boundary_lines.shp")
+fc = FeatureCollection(Feature.(shp.shapes))
+layers = LeafletLayer(shp.shapes)
+layers = LeafletLayer(GADM.get("MUS").geom[1])
 m = LeafletMap(; provider=prov, zoom=3, height=1000, draw=true);
-# Notebooks currently needs thi to work, I'm not sure why
-WebIO.render(m);
+m = LeafletMap(; layers, provider=prov, zoom=3, height=1000, draw=true);
+
+
+LeafletProvider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+
 # Other options
 # Blink window
 using Blink
@@ -47,5 +49,3 @@ port = 8003
 x = WebIO.webio_serve(Mux.page("/", request -> app(request)), port)
 
 # Open a browser at localhost:8000
-
-# l = Layer([(0.0, 0.0)]) # How to define geometry layers?

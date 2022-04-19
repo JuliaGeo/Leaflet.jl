@@ -1,30 +1,55 @@
 # taken from https://github.com/leaflet-extras/leaflet-providers/blob/cc8a10c9aa0ae19c84ccafd1f6b85caca1c68e19/leaflet-providers.js
-"""
-    Provider
-
-A module that implements different Leaflet providers.
-
-Visit `http://leaflet-extras.github.io/leaflet-providers/preview/` to preview different choices.
-
-Reference: `https://github.com/leaflet-extras/leaflet-providers/blob/cc8a10c9aa0ae19c84ccafd1f6b85caca1c68e19/leaflet-providers.js`.
-"""
-module Provider
-
-import JSON3
-
+# Visit `http://leaflet-extras.github.io/leaflet-providers/preview/` to preview different choices.
+# Reference: `https://github.com/leaflet-extras/leaflet-providers/blob/cc8a10c9aa0ae19c84ccafd1f6b85caca1c68e19/leaflet-providers.js`.
 
 """
     LeafletProvider
+
+    LeafletProvider(url; maxzoom=18, attribution="")
+    LeafletProvider(url, options)
+
+# Arguments
+
 - `url`: URL tile path, e.g. "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-- `options`:Dictionary of key/value pairs wher the key is a `Symbol`
+- `options`: Dictionary of key/value pairs where the key is a `Symbol`.
+
+
+# Example
+
+Here we will load an earth engine layer
+
+provider = LeafletProvider(
+    eeurl,
+    Dict{Symbol,Any}(
+        :maxZoom => 20,
+    )
+)
+
+# Example
+
+Manually define an Open Street Map provider.
+
+```julia
+using Blink, LeafletJS
+
+url = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+provider = Provider.LeafletProvider(url)
+
+w = Blink.Window()
+body!(w, LeafletMap(; provider, zoom=3, height=1000))
 """
 struct LeafletProvider
     url::String
     options::Dict{Symbol,Any}
 end
+function LeafletProvider(url::String; maxzoom=18, attribution="")
+    options = Dict{Symbol,Any}(:maxZoom => maxzoom, :attribution => attribution)
+    LeafletProvider(url, options)
+end
 
 url(provider::LeafletProvider) = provider.url
 options(provider::LeafletProvider) = provider.options
+
 
 """
     OSM()
@@ -84,18 +109,6 @@ OSMHumanitarian() = LeafletProvider(
     )
 )
 
-"""
-    OpenSeaMap()
-
-Sea
-"""
-OpenSeaMap() = LeafletProvider(
-    "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png",
-    Dict(
-        :attribution => """Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> contributors"""
-    )
-)
-
 
 const GOOGLE_VARIANTS = (roadmap="m", satelite="s", terrain="p", hybrid="y")
 
@@ -104,9 +117,9 @@ const GOOGLE_VARIANTS = (roadmap="m", satelite="s", terrain="p", hybrid="y")
 
 Map tiles from Google.
 
-Options for variant: $(keys(GOOGLE_VARIANTS))
+Options for variant: `:roadmap`, `:satelite`, `:terrain`, `:hybrid`.
 """
-function Google(variant=:satelite) 
+function Google(variant=:satelite)
     if haskey(GOOGLE_VARIANTS, variant)
         v = GOOGLE_VARIANTS[variant]
     else
@@ -122,21 +135,7 @@ function Google(variant=:satelite)
 end
 
 """
-Options to add tile layer generated in Google Earth Engine
-"""
-function EarthEngineLayer(eeurl::String)
-    provider = LeafletProvider(
-        eeurl,
-        Dict{Symbol,Any}(
-            :maxZoom => 20,
-            :attribution => """&copy; <a href="https://earthengine.google.com/terms/">Google Earth Engine</a>"""
-        )
-    )
-    return provider
-end
-
-"""
-    Thunderforest(apikey, variant=:cycle)
+    Thunderforest(apikey::String, variant::Symbol)
 
 ## Arguments
 
@@ -148,42 +147,9 @@ Thunderforest(apikey, variant::Symbol=:cycle) = LeafletProvider(
     "http://{s}.tile.thunderforest.com/{variant}/{z}/{x}/{y}.png?apikey={apikey}",
     Dict{Symbol,Any}(
         :maxZoom => 22,
-        :variant => "$(variant)",
+        :variant => variant,
         :apikey => apikey,
         :attribution => """&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, {attribution.OpenStreetMap}',"""
-    )
-)
-
-"""
-    OpenMapSurfer(variant)
-
-Open Map surfer tiles.
-
-- `variant`: `:roads` (default), `:adminb`, `:roadsg`
-"""
-OpenMapSurfer(variant::Symbol = :roads) = LeafletProvider(
-    "http://korona.geog.uni-heidelberg.de/tiles/{variant}/x={x}&y={y}&z={z}",
-    Dict{Symbol,Any}(
-        :maxZoom => variant == :roads  ? 20
-                  : variant == :adminb ? 19
-                  : variant == :roadsg ? 19
-                  : error("Unknown variant: $variant (only `roads`, `adminb` or `roadsg` supported)")
-        :variant => "$(variant)",
-        :attribution => """Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data {attribution.OpenStreetMap}"""
-    )
-)
-
-"""
-    Hydda(variant)
-
-- `variant`: `:full` (default), `:base`, `:roads_and_labels`
-"""
-Hydda(variant::Symbol = :full) = LeafletProvider(
-    "http://{s}.tile.openstreetmap.se/hydda/{variant}/{z}/{x}/{y}.png",
-    Dict{Symbol,Any}(
-        :maxZoom => 18,
-        :variant => "$(variant)",
-        :attribution => """Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data {attribution.OpenStreetMap}"""
     )
 )
 
@@ -198,11 +164,11 @@ MapBox(accesstoken) = LeafletProvider(
 )
 
 """
-    Stamen(variant::Symbol = :toner)
+    Stamen(variant::Symbol)
 
 [Stamen](http://maps.stamen.com) map tiles.
 
-Options for `variant`: 
+Options for `variant`:
 - `:toner` (default)
 - `:toner-background`
 - `:toner-hybrid`
@@ -222,7 +188,7 @@ function Stamen(variant::Symbol = :toner)
             :subdomains => "abcd",
             :minZoom => 0,
             :maxZoom => 20,
-            :variant => "$(variant)",
+            :variant => variant,
             :ext => "png",
             :attribution => """Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>"""
         )
@@ -244,30 +210,29 @@ function Stamen(variant::Symbol = :toner)
 end
 
 """
-    Esri(variant)
+    Esri(variant::Symbol)
 
-Options for `variant`: 
+Options for `variant`:
 - `:World_Street_Map` (default)
-- `:Specialty`
 - `:DeLorme_World_Base_Map`
-- `:World_Topo_Map` 
+- `:World_Topo_Map`
 - `:World_Imagery`
 - `:World_Terrain_Base`
 - `:World_Shaded_Relief`
-- `:World_Physical_Map` 
+- `:World_Physical_Map`
 - `:Ocean_Basemap`
 - `:NatGeo_World_Map`
-- `:Canvas/:World_Light_Gray_Base`
+- `:Canvas/World_Light_Gray_Base`
 """
 function Esri(variant::Symbol = :World_Street_Map)
     provider = LeafletProvider(
         "http://server.arcgisonline.com/ArcGIS/rest/services/{variant}/MapServer/tile/{z}/{y}/{x}",
         Dict{Symbol,Any}(
-            :variant => "$(variant)",
+            :variant => variant,
             :attribution => """{attribution.Esri} &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012"""
         )
     )
-    if variant == Symbol("Specialty/DeLorme_World_Base_Map")
+    if variant == "DeLorme_World_Base_Map"
         provider.options[:minZoom] = 1
         provider.options[:maxZoom] = 11
         provider.options[:attribution] = """{attribution.Esri} &mdash; Copyright: &copy;2012 DeLorme"""
@@ -290,7 +255,7 @@ function Esri(variant::Symbol = :World_Street_Map)
     elseif variant == :NatGeo_World_Map
         provider.options[:maxZoom] = 16
         provider.options[:attribution] = """{attribution.Esri} &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC"""
-    elseif variant == Symbol("Canvas/World_Light_Gray_Base")
+    elseif variant == :World_Light_Gray_Base
         provider.options[:maxZoom] = 16
         provider.options[:attribution] = """{attribution.Esri} &mdash; Esri, DeLorme, NAVTEQ"""
     end
@@ -298,11 +263,11 @@ function Esri(variant::Symbol = :World_Street_Map)
 end
 
 """
-    OpenWeatherMap(apikey, variant)
+    OpenWeatherMap(apikey::String, variant::Symbol)
 
 Requires a registration, and an api key.
 
-Options for `variant`: 
+Options for `variant`:
 - `:clouds` Clouds
 - `:clouds_cls` CloudsClassic
 - `:precipitation` Precipitation
@@ -317,10 +282,11 @@ Options for `variant`:
 """
 function OpenWeatherMap(apikey, variant=:temp)
     provider = LeafletProvider(
-        "http://tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png?appid=$(apikey)",
+        "http://tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png?appid={apikey}",
         Dict{Symbol,Any}(
             :maxZoom => 19,
             :variant => variant,
+            :apikey => apikey
             :opacity => 0.5,
             :attribution => """Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>""",
         )
@@ -329,7 +295,7 @@ function OpenWeatherMap(apikey, variant=:temp)
 end
 
 """
-    CARTO(variant::Symbol = :light_all)
+    CARTO(variant::Symbol)
 
 Options for `variant`: `:light_all` (default), `:light_nolabels`,
 `:light_only_labels`, `:dark_all`, `:dark_nolabels`, `:dark_only_labels`
@@ -345,9 +311,9 @@ CARTO(variant::Symbol = :light_all) = LeafletProvider(
 )
 
 """
-    NASAGIBS(variant)
+    NASAGIBS(variant::Symbol)
 
-Options for `variant`: 
+Options for `variant`:
 - `:MODIS_Terra_CorrectedReflectance_TrueColor`
 - `:VIIRS_CityLights_2012`
 - `:MODIS_Terra_Land_Surface_Temp_Day`
@@ -364,7 +330,7 @@ function NASAGIBS(variant::Symbol = :MODIS_Terra_CorrectedReflectance_TrueColor)
             :maxZoom => 9,
             :format => "jpg",
             :time => "2013-11-04",
-            :variant => "$(variant)",
+            :variant => variant,
             :tilematrixset => "GoogleMapsCompatible_Level",
             :attribution => """Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ."""
         )
@@ -404,5 +370,3 @@ OpenTopoMap() = LeafletProvider(
         :attribution => """Map data: {attribution.OpenStreetMap}, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)"""
     )
 )
-
-end

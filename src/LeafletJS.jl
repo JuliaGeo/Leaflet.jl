@@ -2,11 +2,12 @@ module LeafletJS
     
 import Base.show
 import GeoJSON, JSON3
+import GeoInterface
 import Colors
 import UUIDs
 using WebIO
 
-export LeafletMap, Layer, Provider
+export LeafletMap, LeafletProvider, LeafletLayer
 
 include("providers.jl")
 include("layer.jl")

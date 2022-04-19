@@ -1,40 +1,50 @@
 """
-    Layer(data; kw...)
+    LeafletLayer(data; kw...)
 
 Define a point/polygon layer for leaflet.
 
 # Arguments
 
-- `data::T`
+- `data`: An object conforming to the GeoInterface.jl interface
+    or a `Vector` of such objects.
 
 # Keyword arguments
 
-- `cmap::String="nothing"`: color map.
-- `color::Union{String,Symbol}="blue"`: shape color.
-- `alpha::Union{Real,Symbol} = 0.5`: alpha transparency.
-- `markersize::Union{Real,Symbol}=3.0`: size of markers.
-- `borderwidth::Real=2.0`: width of shape borders.
+- `cmap = "nothing"`: color map.
+- `color = "blue"`: shape color.
+- `opacity = 0.5`: alpha transparency.
+- `fill_opacity = 0.5`: alpha transparency of fill. By default the same as `opacity`.
+- `markersize = 3.0`: size of markers.
+- `borderwidth = 2.0`: width of shape borders.
+
+# Example
+
+```julia
+using GADM
+county = GADM.get("MUS").geom
+layer = Layerk
+```
 """
-struct Layer{T}
+struct LeafletLayer{T}
     data::T
     options::Dict{Symbol, Any}
 end
-function Layer(
-    data::T;
-    cmap::String = "nothing",
-    color::Union{String,Symbol} = "blue",
-    alpha::Union{Real,Symbol} = 0.5,
-    markersize::Union{Real,Symbol} = 3.0,
-    borderwidth::Real = 2.0,
-    # geom::Symbol = :geometry0 # default for geojson(::DataFrame)
-) where T
+function LeafletLayer(
+    data;
+    cmap = "nothing",
+    color = "blue",
+    opacity = 0.5,
+    fill_opacity = opacity,
+    markersize = 3.0,
+    borderwidth = 2.0,
+)
     options = Dict(
         :cmap => cmap, 
         :color => color, 
-        :alpha => alpha,
+        :opacity => opacity,
+        :fill_opacity => fill_opacity,
         :markersize => markersize, 
         :borderwidth => borderwidth,
-        #, :geom => geom
     )
-    Layer(data, options)
+    LeafletLayer(data, options)
 end
