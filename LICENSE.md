@@ -1,4 +1,4 @@
-The LeafletJS.jl package is licensed under the MIT "Expat" License:
+The Leaflet.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2021: Yeesian, Rafael Schouten.
 > 

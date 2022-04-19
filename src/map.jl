@@ -1,6 +1,6 @@
 
 # Internal config object
-struct LeafletConfig{P}
+struct Config{P}
     width::Int
     height::Int
     center::Vector{Float64}
@@ -10,14 +10,14 @@ struct LeafletConfig{P}
 end
 
 """
-    LeafletMap(; kw...)
+    Map(; kw...)
 
 A leaflet map object that will render as HTML/Javascript.
 
 # Keyword arguments
 
-- `provider = Providers.OSM()`: base layer [`LeafletProvider`](@ref).
-- `layers`: [`LeafletLayer`](@ref) or `Vector{LeafletLayer}`.
+- `provider = Providers.OSM()`: base layer [`Provider`](@ref).
+- `layers`: [`Layer`](@ref) or `Vector{Layer}`.
 - `center::Vector{Float64} = Float64[0.0, 0.0]`: center coordinate.
 - `width::Int = 900`: map width in pixels.
 - `height::Int = 500`: map height in pixels.
@@ -26,18 +26,18 @@ A leaflet map object that will render as HTML/Javascript.
 # Example
 
 ```julia
-using LeafletJS
+using Leaflet
 prov = Leaflet.OSM()
 
 ```
 """
-struct LeafletMap{L<:Vector{<:LeafletLayer},C,S}
+struct Map{L<:Vector{<:Layer},C,S}
     layers::L
     config::C
     scope::S
 end
-function LeafletMap(;
-    layers=LeafletLayer[],
+function Map(;
+    layers=Layer[],
     center::Vector{Float64}=Float64[0.0, 0.0],
     width::Int=900,
     height::Int=500,
@@ -48,17 +48,17 @@ function LeafletMap(;
         layers = [layers]
     end
     id = string(UUIDs.uuid4())
-    conf = LeafletConfig(width, height, center, zoom, provider, id)
-    return LeafletMap(layers, conf, leaflet_scope(layers, conf))
+    conf = Config(width, height, center, zoom, provider, id)
+    return Map(layers, conf, leaflet_scope(layers, conf))
 end
 
 # WebIO rendering interface
-@WebIO.register_renderable(LeafletMap) do map
+@WebIO.register_renderable(Map) do map
     return WebIO.render(map.scope)
 end
 
 # return the html head/body and javascriopt for a leaflet map
-function leaflet_scope(layers, cfg::LeafletConfig)
+function leaflet_scope(layers, cfg::Config)
     # Define online assets
     urls = [
         "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
@@ -101,7 +101,7 @@ end
 #
 # Returns a WebIO.JSString that holds a 
 # javascript callback function for use in `WebIO.onimport`
-function leaflet_javascript(layers, cfg::LeafletConfig)
+function leaflet_javascript(layers, cfg::Config)
     io = IOBuffer()
     for (i, layer) in enumerate(layers)
         data = if layer.data isa Vector

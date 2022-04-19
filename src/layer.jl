@@ -1,5 +1,5 @@
 """
-    LeafletLayer(data; kw...)
+    Layer(data; kw...)
 
 Define a point/polygon layer for leaflet.
 
@@ -20,16 +20,22 @@ Define a point/polygon layer for leaflet.
 # Example
 
 ```julia
-using GADM
-county = GADM.get("MUS").geom
-layer = Layerk
+using Leaflet, GADM, Blink
+mauritius_border = GADM.get("MUS").geom
+m = LeafletMap(; 
+    layers=Leaflet.Layer(mauritius_border)
+    provider=CARTO(:dark);
+    height=1000
+)
+w = Blink.Window()
+body!(w, m)
 ```
 """
-struct LeafletLayer{T}
+struct Layer{T}
     data::T
     options::Dict{Symbol, Any}
 end
-function LeafletLayer(
+function Layer(
     data;
     cmap = "nothing",
     color = "blue",
@@ -46,5 +52,5 @@ function LeafletLayer(
         :markersize => markersize, 
         :borderwidth => borderwidth,
     )
-    LeafletLayer(data, options)
+    Layer(data, options)
 end

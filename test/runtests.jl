@@ -3,40 +3,42 @@
 # notebook()
 # Then paste this code
 
-using LeafletJS
+using Leaflet
 using Test
 using WebIO
 using Shapefile
 using GADM
 using GeoInterface
-prov = LeafletJS.OSM()
-prov = LeafletJS.OSMFrance()
-prov = LeafletJS.OSMDE()
-prov = LeafletJS.OpenTopoMap()
-prov = LeafletJS.CARTO()
-prov = LeafletJS.Esri()
-prov = LeafletJS.NASAGIBS()
-prov = LeafletJS.Stamen()
-prov = LeafletJS.Stamen(:watercolor)
-prov = LeafletJS.Thunderforest("someapikey")
-prov = LeafletJS.MapBox("sometoken")
-prov = LeafletJS.CARTO(:light_all)
-prov = LeafletJS.Google(:hybrid)
-# prov = Providers.OpenWeatherMap("someapikey", :clouds)
+using Blink
+using Dates
+prov = Leaflet.OSM()
+prov = Leaflet.OSMFrance()
+prov = Leaflet.OSMDE()
+prov = Leaflet.OpenTopoMap()
+prov = Leaflet.CARTO()
+prov = Leaflet.Esri()
+prov = Leaflet.NASAGIBS(:citylights)
+prov = Leaflet.Stamen()
+prov = Leaflet.Stamen(:watercolor)
+prov = Leaflet.Thunderforest(; apikey="someapikey")
+prov = Leaflet.MapBox(; apikey="sometoken")
+prov = Leaflet.CARTO(:dark_all)
+prov = Leaflet.Google(:hybrid)
+prov = Leaflet.OpenWeatherMap(:clouds; apikey="someapikey")
+prov = Leaflet.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
 
 shp = Shapefile.Handle("/home/raf/PhD/Mauritius/MauritiusExtinctions/boundary_lines.shp")
 fc = FeatureCollection(Feature.(shp.shapes))
-layers = LeafletLayer(shp.shapes)
-layers = LeafletLayer(GADM.get("MUS").geom[1])
-m = LeafletMap(; provider=prov, zoom=3, height=1000, draw=true);
-m = LeafletMap(; layers, provider=prov, zoom=3, height=1000, draw=true);
+layers = Leaflet.Layer(shp.shapes)
+layers = Leaflet.Layer(GADM.get("MUS").geom[1])
+m = Leaflet.Map(; layers, provider=prov, zoom=3, height=1000);
 
 
-LeafletProvider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+prov = Leaflet.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
 
-# Other options
-# Blink window
-using Blink
+prov = Leaflet.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010))
+# prov = Leaflet.NASAGIBS(:VIIRS_Black_Marble)
+m = Leaflet.Map(; provider=prov, zoom=3, height=1000);
 w = Blink.Window()
 body!(w, m)
 
