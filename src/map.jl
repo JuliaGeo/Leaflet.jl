@@ -22,14 +22,6 @@ A leaflet map object that will render as HTML/Javascript.
 - `width::Int = 900`: map width in pixels.
 - `height::Int = 500`: map height in pixels.
 - `zoom::Int = 11`: default zoom level.
-
-# Example
-
-```julia
-using Leaflet
-prov = Leaflet.OSM()
-
-```
 """
 struct Map{L<:Vector{<:Layer},C,S}
     layers::L
@@ -234,7 +226,7 @@ function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol
         @assert colortype == :nothing
         write(io, "fillColor: ", option2style(color))
     elseif options[:color_map] != "nothing"
-        write(io, "fillColor: chroma.scale(", option2style(options[:color_map]),")(feature.properties.$color).hex()")
+        write(io, "fillColor: chroma.scale(", option2style(options[:color_map]), ")(feature.properties.$color).hex()")
     elseif colortype == :sequential
         write(io, "fillColor: chroma.scale(\"YlGnBu\")(feature.properties.$color).hex()")
     elseif colortype == :diverging

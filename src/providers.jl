@@ -51,8 +51,8 @@ end
 """
     OSM()
 
-[Standard](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
-Open Street Map tile provider.
+Provider for [Standard](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
+Open Street Map base layer.
 """
 OSM() = Provider(
     "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -65,8 +65,8 @@ OSM() = Provider(
 """
     OSMDE()
 
-[German](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
-Open Street Map base layers .
+Provider for [German](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
+Open Street Map base layer.
 """
 OSMDE() = Provider(
     "http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png",
@@ -79,8 +79,8 @@ OSMDE() = Provider(
 """
     OSMFrance()
 
-[French](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
-Open Street Map base layers.
+Proficer for [French](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
+Open Street Map base layer.
 """
 OSMFrance() = Provider(
     "http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
@@ -93,7 +93,7 @@ OSMFrance() = Provider(
 """
     OSMHumanitarian()
 
-[https://wiki.openstreetmap.org/wiki/Humanitarian_map_style](Humanitarian) map style.
+Proficer for [Humanitarian](https://wiki.openstreetmap.org/wiki/Humanitarian_map_style) base layer.
 
 Adapted OSM base layer focused on resources useful for humanitarian organizations and
 citizens in general in emergency situations.
@@ -112,7 +112,7 @@ const _GOOGLE_VARIANTS = (roadmap="m", satelite="s", terrain="p", hybrid="y")
 """
     Google()
 
-Baes layers from Google maps.
+Proficer for base layers from Google maps.
 
 $(_doclist(_GOOGLE_VARIANTS))
 """
@@ -141,7 +141,7 @@ const _THUNDERFOREST_VARIANTS = (
 """
     Thunderforest(variant::Symbol=:cycle; apikey)
 
-Thunderforest base layers. A Thunderforest API key is required.
+Provider for Thunderforest base layers. A Thunderforest API key is required.
 
 $(_doclist(_THUNDERFOREST_VARIANTS))
 """
@@ -158,12 +158,17 @@ function Thunderforest(variant::Symbol=:cycle; apikey)
     )
 end
 
-MapBox(; accesstoken) = Provider(
-    "http://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
+"""
+    Mapbox(variant::Symbol=:cycle; apikey)
+
+Provider for the Mapbox base layer.
+"""
+MapBox(; tileset_id, access_token) = Provider(
+    "http://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={access_token}",
     Dict{Symbol,Any}(
         :subdomains => "abcd",
         :id => "streets",
-        :accesstoken => accesstoken,
+        :access_token => access_token,
         :attribution => """Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; Map data {attribution.OpenStreetMap}"""
     )
 )
@@ -294,7 +299,7 @@ const _OPENWEATHERMAP_VARIANTS = (
 """
     OpenWeatherMap(variant::Symbol; apikey)
 
-OpenWeatherMap tiles. An OpenWeatherMap api key is required.
+OpenWeatherMap base layers. An OpenWeatherMap api key is required.
 
 $(_doclist(_OPENWEATHERMAP_VARIANTS))
 """
@@ -348,19 +353,19 @@ const _JAWG_VARIANTS = (
 )
 
 """
-    Jawg(variant::Symbol; accesstoken)
+    Jawg(variant::Symbol; access_token)
 
-Base layers from Jawg. Must pass an `accesstoken` to use the API.
+Base layers from Jawg. Must pass an `access_token` to use the API.
 
 $(_doclist(_JAWG_VARIANTS))
 """
-function Jawg(variant::Symbol; accesstoken) 
+function Jawg(variant::Symbol=:streets; access_token) 
     _checkin(variant, _JAWG_VARIANTS)
     return Provider("'https://{s}.tile.jawg.io/jawg-{variant}/{z}/{x}/{y}{r}.png?access-token={accessToken}'",
         Dict{Symbol,Any}(
             :minZoom => 0,
             :maxZoom => 22,
-            :accessToken => accesstoken
+            :accessToken => access_token,
             :attribution => """<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors""",
         )
    )
@@ -369,7 +374,7 @@ end
 """
     OpenTopoMap()
 
-[https://wiki.openstreetmap.org/wiki/OpenTopoMap](Open Topo) topography map tiles.
+[Open Topo](https://wiki.openstreetmap.org/wiki/OpenTopoMap) base layer.
 """
 OpenTopoMap() = Provider(
     "http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
