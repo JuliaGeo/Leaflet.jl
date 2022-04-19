@@ -115,8 +115,8 @@ function leaflet_javascript(layers, cfg::Config)
         if layer.options[:color] != "nothing"
             color = layer.options[:color]
             if isa(color, Symbol)
-                @assert haskey(layer.options, :cmap)
-                cmap = layer.options[:cmap]
+                @assert haskey(layer.options, :color_map)
+                color_map = layer.options[:color_map]
                 write(io, """
                 // for categorical variables, converts them into 1...n
                 if (data$i.features.length > 0) {
@@ -224,17 +224,17 @@ option2style(attribute::Symbol) = "feature.properties.$attribute"
 function layeroptions2style(options::Dict{Symbol,Any}, i::Int, colortype::Symbol)
     io = IOBuffer()
     write(io, "{\n")
-    write(io, "radius: ", option2style(options[:markersize]), ",\n")
+    write(io, "radius: ", option2style(options[:marker_size]), ",\n")
     write(io, "color: ", option2style(options[:color]), ",\n")
-    write(io, "weight: ", option2style(options[:borderwidth]), ",\n")
+    write(io, "weight: ", option2style(options[:border_width]), ",\n")
     write(io, "opacity: ", option2style(options[:opacity]), ",\n")
     write(io, "fillOpacity: ", option2style(options[:fill_opacity]), ",\n")
     color = options[:color]
     if color isa String
         @assert colortype == :nothing
         write(io, "fillColor: ", option2style(color))
-    elseif options[:cmap] != "nothing"
-        write(io, "fillColor: chroma.scale(", option2style(options[:cmap]),")(feature.properties.$color).hex()")
+    elseif options[:color_map] != "nothing"
+        write(io, "fillColor: chroma.scale(", option2style(options[:color_map]),")(feature.properties.$color).hex()")
     elseif colortype == :sequential
         write(io, "fillColor: chroma.scale(\"YlGnBu\")(feature.properties.$color).hex()")
     elseif colortype == :diverging

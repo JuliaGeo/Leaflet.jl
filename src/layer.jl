@@ -10,12 +10,12 @@ Define a point/polygon layer for leaflet.
 
 # Keyword arguments
 
-- `cmap = "nothing"`: color map.
-- `color = "blue"`: shape color.
+- `color = "blue"`: shape color. Can use web color names or RGB strings.
+- `color_map = "nothing"`: color map.
 - `opacity = 0.5`: alpha transparency.
 - `fill_opacity = 0.5`: alpha transparency of fill. By default the same as `opacity`.
-- `markersize = 3.0`: size of markers.
-- `borderwidth = 2.0`: width of shape borders.
+- `marker_size = 3.0`: size of markers.
+- `border_width = 2.0`: width of shape borders.
 
 # Example
 
@@ -37,20 +37,20 @@ struct Layer{T}
 end
 function Layer(
     data;
-    cmap = "nothing",
-    color = "blue",
+    color_map = "nothing",
+    color = :blue,
     opacity = 0.5,
     fill_opacity = opacity,
-    markersize = 3.0,
-    borderwidth = 2.0,
+    marker_size = 3.0,
+    border_width = 2.0,
 )
     options = Dict(
-        :cmap => cmap, 
-        :color => color, 
+        :color_map => string(color_map), 
+        :color => string(color), 
         :opacity => opacity,
         :fill_opacity => fill_opacity,
-        :markersize => markersize, 
-        :borderwidth => borderwidth,
+        :marker_size => marker_size, 
+        :border_width => border_width,
     )
     Layer(data, options)
 end

@@ -158,7 +158,7 @@ function Thunderforest(variant::Symbol=:cycle; apikey)
     )
 end
 
-MapBox(accesstoken) = Provider(
+MapBox(; accesstoken) = Provider(
     "http://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
     Dict{Symbol,Any}(
         :subdomains => "abcd",
@@ -339,12 +339,12 @@ function CARTO(variant::Symbol = :light_all)
 end
 
 const _JAWG_VARIANTS = (
-    :streets = "streets",
-    :terrain = "terrain",
-    :sunny = "sunny",
-    :dark = "dark",
-    :light = "light",
-    :matrix = "matrix",
+    streets = "streets",
+    terrain = "terrain",
+    sunny = "sunny",
+    dark = "dark",
+    light = "light",
+    matrix = "matrix",
 )
 
 """
@@ -361,7 +361,7 @@ function Jawg(variant::Symbol; accesstoken)
             :minZoom => 0,
             :maxZoom => 22,
             :accessToken => accesstoken
-            :attribution => '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            :attribution => """<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors""",
         )
    )
 end
