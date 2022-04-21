@@ -19,3 +19,10 @@ GeoJSON = "0.5"
 JSON3 = "1"
 WebIO = "0.8"
 julia = "1"
+
+[extras]
+GADM = "a8dd9ffe-31dc-4cf5-a379-ea69100a8233"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["GADM", "Test"]
