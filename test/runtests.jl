@@ -9,7 +9,7 @@ providers = (
     Leaflet.OSMFrance(),
     Leaflet.OSMDE(),
     Leaflet.OpenTopoMap(),
-    Leaflet.CARTO(:dark),
+    Leaflet.CARTO(:dark_nolabels),
     Leaflet.Esri(),
     Leaflet.Stamen(),
     Leaflet.Stamen(:watercolor),
@@ -40,10 +40,3 @@ for provider in providers
     # Render as html/javascript
     WebIO.render(m)
 end
-
-using Leaflet, Blink, GADM
-layers = Leaflet.Layer.([GADM.get("CHN").geom, GADM.get("JPN").geom]; color=:orange); 
-provider = Leaflet.CARTO(:dark_nolabels)
-m = Leaflet.Map(; layers, provider, zoom=3, height=1000, center=[30.0, 120.0]);
-w = Blink.Window()
-body!(w, m)
