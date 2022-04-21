@@ -48,7 +48,7 @@ _variant_list(variants) =
 
 function _checkin(variant, variants)
     if !(variant in keys(variants))
-        throw(ArgumentError("`variant` must be one of $(keys(variants))"))
+        throw(ArgumentError("`variant` must be one of $(keys(variants)), got $variant"))
     end
 end
 
