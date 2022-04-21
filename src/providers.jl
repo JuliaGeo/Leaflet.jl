@@ -7,6 +7,10 @@
     Provider(url; maxzoom=18, attribution="")
     Provider(url, options)
 
+Defines the parameters of a base layer tile provider, such as `OSM`, `Esri` etc.
+
+`Provider` can also be defined manually for custome tile providers.
+
 # Arguments
 
 - `url`: URL tile path, e.g. "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -38,8 +42,8 @@ end
 url(provider::Provider) = provider.url
 options(provider::Provider) = provider.options
 
-_doclist(variants::NamedTuple) = _doclist(keys(variants))
-_doclist(variants) =
+_variant_list(variants::NamedTuple) = _variant_list(keys(variants))
+_variant_list(variants) =
     string("Options for `variant` are: \n", join(string.(Ref("- `:"), variants, '`'), "\n"))
 
 function _checkin(variant, variants)
@@ -51,8 +55,8 @@ end
 """
     OSM()
 
-Provider for [Standard](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
-Open Street Map base layer.
+[`Provider`](@ref) for the [Open Street Map](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
+base layer.
 """
 OSM() = Provider(
     "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -65,8 +69,7 @@ OSM() = Provider(
 """
     OSMDE()
 
-Provider for [German](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
-Open Street Map base layer.
+[`Provider`](@ref) for the [German](https://www.openstreetmap.de/) Open Street Map base layer.
 """
 OSMDE() = Provider(
     "http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png",
@@ -79,7 +82,7 @@ OSMDE() = Provider(
 """
     OSMFrance()
 
-Proficer for [French](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
+[`Provider`](@ref) for [French](https://wiki.openstreetmap.org/wiki/Standard_tile_layer)
 Open Street Map base layer.
 """
 OSMFrance() = Provider(
@@ -93,7 +96,7 @@ OSMFrance() = Provider(
 """
     OSMHumanitarian()
 
-Proficer for [Humanitarian](https://wiki.openstreetmap.org/wiki/Humanitarian_map_style) base layer.
+[`Provider`](@ref) for [Humanitarian](https://wiki.openstreetmap.org/wiki/Humanitarian_map_style) base layer.
 
 Adapted OSM base layer focused on resources useful for humanitarian organizations and
 citizens in general in emergency situations.
@@ -112,9 +115,9 @@ const _GOOGLE_VARIANTS = (roadmap="m", satelite="s", terrain="p", hybrid="y")
 """
     Google()
 
-Proficer for base layers from Google maps.
+[`Provider`](@ref) for base layers from Google maps.
 
-$(_doclist(_GOOGLE_VARIANTS))
+$(_variant_list(_GOOGLE_VARIANTS))
 """
 function Google(variant=:satelite)
     _checkin(variant, _GOOGLE_VARIANTS)
@@ -141,9 +144,9 @@ const _THUNDERFOREST_VARIANTS = (
 """
     Thunderforest(variant::Symbol=:cycle; apikey)
 
-Provider for Thunderforest base layers. A Thunderforest API key is required.
+[`Provider`](@ref) for Thunderforest base layers. A Thunderforest API key is required.
 
-$(_doclist(_THUNDERFOREST_VARIANTS))
+$(_variant_list(_THUNDERFOREST_VARIANTS))
 """
 function Thunderforest(variant::Symbol=:cycle; apikey)
     _checkin(variant, _THUNDERFOREST_VARIANTS)
@@ -161,7 +164,7 @@ end
 """
     Mapbox(variant::Symbol=:cycle; apikey)
 
-Provider for the Mapbox base layer.
+[`Provider`](@ref) for the Mapbox base layer.
 """
 MapBox(; tileset_id, access_token) = Provider(
     "http://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={access_token}",
@@ -190,9 +193,9 @@ const _STAMEN_VARIANTS = (
 """
     Stamen(variant::Symbol)
 
-[Stamen](http://maps.stamen.com) base layers.
+[`Provider`](@ref) for [Stamen](http://maps.stamen.com) base layers.
 
-$(_doclist(_STAMEN_VARIANTS))
+$(_variant_list(_STAMEN_VARIANTS))
 """
 function Stamen(variant::Symbol = :toner)
     _checkin(variant, _STAMEN_VARIANTS)
@@ -239,9 +242,9 @@ const _ESRI_VARIANTS = (
 """
     Esri(variant::Symbol)
 
-[Esri basemaps](https://www.esri.com/en-us/arcgis/products/arcgis-platform/services/basemaps).
+[`Provider`](@ref) for [Esri basemaps](https://www.esri.com/en-us/arcgis/products/arcgis-platform/services/basemaps).
 
-$(_doclist(_ESRI_VARIANTS))
+$(_variant_list(_ESRI_VARIANTS))
 """
 function Esri(variant::Symbol = :street)
     _checkin(variant, _ESRI_VARIANTS)
@@ -299,9 +302,9 @@ const _OPENWEATHERMAP_VARIANTS = (
 """
     OpenWeatherMap(variant::Symbol; apikey)
 
-OpenWeatherMap base layers. An OpenWeatherMap api key is required.
+O[`Provider`](@ref) for OpenWeatherMap base layers. An OpenWeatherMap api key is required.
 
-$(_doclist(_OPENWEATHERMAP_VARIANTS))
+$(_variant_list(_OPENWEATHERMAP_VARIANTS))
 """
 OpenWeatherMap(variant=:temp; apikey) = Provider(
     "http://tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png?appid={apikey}",
@@ -326,9 +329,9 @@ const _CARTO_VARIANTS = (
 """
     CARTO(variant::Symbol)
 
-[CARTO basemaps](https://carto.com/basemaps/).
+[`Provider`](@ref) for [CARTO basemaps](https://carto.com/basemaps/).
 
-$(_doclist(_CARTO_VARIANTS))
+$(_variant_list(_CARTO_VARIANTS))
 """
 function CARTO(variant::Symbol = :light_all)
     _checkin(variant, _CARTO_VARIANTS)
@@ -355,9 +358,9 @@ const _JAWG_VARIANTS = (
 """
     Jawg(variant::Symbol; access_token)
 
-Base layers from Jawg. Must pass an `access_token` to use the API.
+[`Provider`](@ref) for Jawg base layers. Must pass an `access_token` to use the API.
 
-$(_doclist(_JAWG_VARIANTS))
+$(_variant_list(_JAWG_VARIANTS))
 """
 function Jawg(variant::Symbol=:streets; access_token) 
     _checkin(variant, _JAWG_VARIANTS)
@@ -374,7 +377,7 @@ end
 """
     OpenTopoMap()
 
-[Open Topo](https://wiki.openstreetmap.org/wiki/OpenTopoMap) base layer.
+[`Provider`](@ref) for the [Open Topo](https://wiki.openstreetmap.org/wiki/OpenTopoMap) base layer.
 """
 OpenTopoMap() = Provider(
     "http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",

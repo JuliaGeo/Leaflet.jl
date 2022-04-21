@@ -770,12 +770,17 @@ end
 """
     NASAGIBS(variant::Symbol; date="2020-01-01")
 
-A huge range of layers from [NASA GIBS](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog)
+[`Provider`](@ref) for A huge range of layers from 
+[NASA GIBS](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog).
 
-`date` can be a "yyyy-mm-dd" `String` or any `Dates.TimeType` like `Date` or `DateTime`.
+Some common layers like `:BlueMarble*` variants and `:VIIRS_CityLights_2012`, and masks/coasatlines 
+do not require `date`. Most others layers do, with a default of 2020-01-01 used.
+`date` can be a "yyyy-mm-dd" formatted `String` or any `Dates.TimeType` like `Date` or `DateTime`.
 It must correspond to an available date for the dataset - if not empty tiles will be returned.
-By default it is "2020-01-01" for quick exploration of datasets - but this may not correspond 
-to an actually available date. See the documentation linked above for the list of available dates.
+
+Note that the default 2020 date may not correspond to an available date for a specific layer. 
+See the [NASA GIBS documentation](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog)
+for the available dates.
 
 # Example
 
@@ -787,7 +792,7 @@ w = Blink.Window()
 body!(w, m)
 ```
 
-$(_doclist(_NASAGIBS_KEYS))
+$(_variant_list(_NASAGIBS_KEYS))
 """
 function NASAGIBS(variant::Symbol=:reflectance; date="2020-01-01")
     _checkin(variant, _NASAGIBS_DICT)

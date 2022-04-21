@@ -12,8 +12,8 @@ Blink.jl, Mux.jl, and for Jupyter notebooks.
 
 All [GeoInterface.jl](https://github.com/JuliaGeo/GeoInterface.jl) compatible geometries can be displayed as layers.
 
-A basic example, where we use GADM to download a countty boundary shapefile,
-and plot it over 
+A basic example, where we use GADM to download a country boundary shapefile,
+and plot them over the CARTO `:dark_nolabels` base layers.
 
 ```julia
 using Leaflet, Blink, GADM

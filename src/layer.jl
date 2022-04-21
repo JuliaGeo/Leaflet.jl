@@ -1,12 +1,16 @@
 """
     Layer(data; kw...)
 
-Define a point/polygon layer for leaflet.
+Wrapper for a point/polygon layer to be passed to leaflet, holding 
+any GeoInterface.jl compatale geometry data, and settings for displaying 
+it in the Leaflet map.
+
+A `Layer` or `Vector` of `Layer` is used for the `layers` keyword of [`Map`](@ref).
 
 # Arguments
 
 - `data`: An object conforming to the GeoInterface.jl interface
-    or a `Vector` of such objects.
+    or a `Vector` of these objects.
 
 # Keyword arguments
 
@@ -16,20 +20,6 @@ Define a point/polygon layer for leaflet.
 - `fill_opacity = 0.5`: alpha transparency of fill. By default the same as `opacity`.
 - `marker_size = 3.0`: size of markers.
 - `border_width = 2.0`: width of shape borders.
-
-# Example
-
-```julia
-using Leaflet, GADM, Blink
-mauritius_border = GADM.get("MUS").geom
-m = LeafletMap(; 
-    layers=Leaflet.Layer(mauritius_border)
-    provider=CARTO(:dark);
-    height=1000
-)
-w = Blink.Window()
-body!(w, m)
-```
 """
 struct Layer{T}
     data::T

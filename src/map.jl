@@ -12,7 +12,8 @@ end
 """
     Map(; kw...)
 
-A leaflet map object that will render as HTML/Javascript.
+A Leaflet map object that will render as HTML/Javascript in any WebIO.jl page,
+or by calling `WebIO.render(yourmap)`.
 
 # Keyword arguments
 
