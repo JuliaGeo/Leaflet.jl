@@ -2,7 +2,7 @@
 CurrentModule = Leaflet
 ```
 
-# LeafletJS
+# Leaflet
 
 Documentation for [Leaflet](https://github.com/JuliaGeo/Leaflet.jl).
 
@@ -11,4 +11,11 @@ Documentation for [Leaflet](https://github.com/JuliaGeo/Leaflet.jl).
 
 ```@autodocs
 Modules = [Leaflet]
+```
+
+## Example 
+
+Use Leaflet to display custom Goolge EarthEngine layers.
+
+```julia
 ```

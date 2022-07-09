@@ -97,13 +97,9 @@ end
 function leaflet_javascript(layers, cfg::Config)
     io = IOBuffer()
     for (i, layer) in enumerate(layers)
-        data = if layer.data isa Vector
-            GeoInterface.FeatureCollection(GeoInterface.Feature.(skipmissing(layer.data)))
-        elseif layer.data isa GeoInterface.Feature || layer.data isa GeoInterface.FeatureCollection
-            layer.data
-        else
-            GeoInterface.Feature(layer.data)
-        end
+        data = layer.data
+        isnothing(GeoInterface.trait(data)) &&
+            throw(ArgumentError("data is not a GeoInterace compatible Feature or Geometry"))
         write(io, "var data$i = ", GeoJSON.write(data), ";\n")
         if layer.options[:color] != "nothing"
             color = layer.options[:color]

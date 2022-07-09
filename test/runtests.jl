@@ -27,7 +27,7 @@ providers = (
 
 # We are not actually testing that the web interface shows the map,
 # just that the page is actually rendered by WebIO. Testing Leaflet
-# actually works in all cases is a much bigger task.
+# actually works in a browser is a much bigger task.
 for provider in providers
     # Make a country outline Layer
     layers = Leaflet.Layer(GADM.get("MUS").geom[1]; 
