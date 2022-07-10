@@ -2,8 +2,8 @@
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaGeo.github.io/Leaflet.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaGeo.github.io/Leaflet.jl/dev)
-[![CI](https://github.com/JuliaGeo/Leaflet.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/JuliaGeo/Leaflet.jl/actions/workflows/ci.yml)
-[![codecov.io](http://codecov.io/github/JuliaGeo/Leaflet.jl/coverage.svg?branch=master)](http://codecov.io/github/yeesian/Leaflet.jl?branch=master)
+[![CI](https://github.com/JuliaGeo/Leaflet.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeo/Leaflet.jl/actions/workflows/CI.yml)
+[![codecov.io](http://codecov.io/github/JuliaGeo/Leaflet.jl/coverage.svg?branch=main)](http://codecov.io/github/yeesian/Leaflet.jl?branch=main)
 
 LeafletJS maps for Julia.
 
