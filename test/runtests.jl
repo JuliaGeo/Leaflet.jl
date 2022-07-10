@@ -29,8 +29,6 @@ providers = (
 # just that the page is actually rendered by WebIO. Testing Leaflet
 # actually works in a browser is a much bigger task.
 for provider in providers
-    # provider = Leaflet.OSM(),
-    # provider = Leaflet.NASAGIBS(:VIIRS_CityLights_2012)
     # Make a country outline Layer
     layers = Leaflet.Layer(GADM.get("MUS").geom[1]; 
         color="#ff0201", 
@@ -41,7 +39,20 @@ for provider in providers
     m = Leaflet.Map(; layers, provider, zoom=3, height=1000);
     # Render as html/javascript
     interface = WebIO.render(m)
-    # using Blink
-    # w = Blink.Window()
-    body!(w, interface)
 end
+
+# Manual test
+# provider = Leaflet.OSM(),
+# provider = Leaflet.NASAGIBS(:VIIRS_CityLights_2012)
+# layers = Leaflet.Layer(GADM.get("MUS").geom[1]; 
+#     color="#ff0201", 
+#     opacity=0.6,
+#     fill_opacity=0.2,
+# )
+# Combine into a Map
+# m = Leaflet.Map(; layers, provider, zoom=3, height=1000);
+# Render as html/javascript
+# interface = WebIO.render(m)
+# using Blink
+# w = Blink.Window()
+# body!(w, interface)
