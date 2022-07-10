@@ -773,7 +773,7 @@ end
 [`Provider`](@ref) for A huge range of layers from 
 [NASA GIBS](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog).
 
-Some common layers like `:BlueMarble*` variants and `:VIIRS_CityLights_2012`, and masks/coasatlines 
+Some common layers like `:BlueMarble_****` variants and `:VIIRS_CityLights_2012`, and masks/coasatlines 
 do not require `date`. Most others layers do, with a default of 2020-01-01 used.
 `date` can be a "yyyy-mm-dd" formatted `String` or any `Dates.TimeType` like `Date` or `DateTime`.
 It must correspond to an available date for the dataset - if not empty tiles will be returned.
@@ -785,7 +785,8 @@ for the available dates.
 # Example
 
 ```julia
-provider = Leaflet.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
+provider = Leaflet.NASAGIBS(:VIIRS_CityLights_2012)
+# provider = Leaflet.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
 m = Leaflet.Map(; provider, zoom=3, height=1000);
 # Open as a Blink.jl app
 w = Blink.Window()

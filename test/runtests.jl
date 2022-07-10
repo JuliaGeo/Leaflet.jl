@@ -20,7 +20,7 @@ providers = (
     Leaflet.Thunderforest(; apikey="someapikey"),
     Leaflet.OpenWeatherMap(:clouds; apikey="someapikey"),
     Leaflet.OpenWeatherMap(:clouds; apikey="someapikey"),
-    Leaflet.NASAGIBS(:VIIRS_Black_Marble),
+    Leaflet.NASAGIBS(:VIIRS_CityLights_2012),
     Leaflet.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
     Leaflet.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
 )
@@ -30,6 +30,7 @@ providers = (
 # actually works in a browser is a much bigger task.
 for provider in providers
     # provider = Leaflet.OSM(),
+    # provider = Leaflet.NASAGIBS(:VIIRS_CityLights_2012)
     # Make a country outline Layer
     layers = Leaflet.Layer(GADM.get("MUS").geom[1]; 
         color="#ff0201", 
@@ -42,5 +43,5 @@ for provider in providers
     interface = WebIO.render(m)
     # using Blink
     # w = Blink.Window()
-    # body!(w, interface)
+    body!(w, interface)
 end
