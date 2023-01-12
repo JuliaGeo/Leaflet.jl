@@ -18,8 +18,7 @@ and plot them over the CARTO `:dark_nolabels` base layers.
 ```julia
 using Leaflet, Blink, GADM
 layers = Leaflet.Layer.([GADM.get("CHN").geom[1], GADM.get("JPN").geom[1]]; color=:orange); 
-provider = Leaflet.CARTO(:dark_nolabels)
+provider = Providers.CartoDB()
 m = Leaflet.Map(; layers, provider, zoom=3, height=1000, center=[30.0, 120.0]);
-w = Blink.Window()
-body!(w, m)
+w = Blink.Window(; body=m)
 ```

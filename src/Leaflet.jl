@@ -10,8 +10,10 @@ end Leaflet
 import Colors, GeoInterface, GeoJSON, JSON3, UUIDs
 using Dates, WebIO
 
-include("providers.jl")
-include("nasagibs.jl")
+import TileProviders as Providers
+
+export Providers
+
 include("layer.jl")
 include("map.jl")
 

@@ -10,6 +10,7 @@ GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
 GeoJSON = "61d90e0f-e114-555e-ac52-39dfb47a3ef9"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+TileProviders = "263fe934-28e1-4ae9-998a-c2629c5fede6"
 WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 
 [compat]
@@ -17,6 +18,7 @@ Colors = "0.12"
 GeoInterface = "1"
 GeoJSON = "0.6"
 JSON3 = "1"
+TileProviders = "0.1.0"
 WebIO = "0.8"
 julia = "1"
 

@@ -5,15 +5,15 @@ using Test
 using WebIO
 
 providers = (
-    Leaflet.OSM(),
-    Leaflet.OSMFrance(),
-    Leaflet.OSMDE(),
+    Leaflet.OpenStreetMap(),
+    Leaflet.OpenStreetMap(:France),
+    Leaflet.OpenStreetMap(:DE),
     Leaflet.OpenTopoMap(),
-    Leaflet.CARTO(:dark_nolabels),
+    Leaflet.CartoDB(:dark_nolabels),
     Leaflet.Esri(),
     Leaflet.Stamen(),
     Leaflet.Stamen(:watercolor),
-    Leaflet.CARTO(:dark_all),
+    Leaflet.CartoDB(:dark_all),
     Leaflet.Google(:hybrid),
     Leaflet.MapBox(; tileset_id="username.id", access_token="sometoken"),
     Leaflet.Jawg(; access_token="sometoken"),
