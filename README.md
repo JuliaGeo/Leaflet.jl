@@ -23,3 +23,4 @@ m = Leaflet.Map(; layers, provider, zoom=3, height=1000, center=[30.0, 120.0]);
 w = Blink.Window()
 body!(w, m)
 ```
+![](docs/img/example-fs8.png)

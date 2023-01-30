@@ -17,7 +17,7 @@ Modules = [Leaflet]
 
 An example by Shunan Feng `@fsn1995`.
 
-Use Leaflet to display custom Goolge EarthEngine layers in a notebook.
+Use Leaflet to display custom Google EarthEngine layers in a notebook.
 
 ```julia
 using EarthEngine, Leaflet
