@@ -33,7 +33,7 @@ for provider in providers
         fill_opacity=0.2
     )
     # Combine into a Map
-    m = Leaflet.Map(; layers, provider, zoom=3, height=1000)
+    m = Leaflet.Map(; layers, provider, zoom=3, height=1000);
     # Render as html/javascript
     interface = WebIO.render(m)
 end
