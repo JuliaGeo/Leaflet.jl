@@ -6,9 +6,9 @@ module Leaflet
     include_dependency(path)
     read(path, String)
 end Leaflet
-    
+
 import Colors, GeoInterface, GeoJSON, JSON3, UUIDs
-using Dates, WebIO
+using WebIO
 
 import TileProviders as Providers
 
