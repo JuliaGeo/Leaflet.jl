@@ -22,4 +22,4 @@ provider = Providers.CartoDB()
 m = Leaflet.Map(; layers, provider, zoom=3, height=1000, center=[30.0, 120.0]);
 w = Blink.Window(; body=m)
 ```
-![](docs/img/example-fs8.png)
+![](https://user-images.githubusercontent.com/4471859/275353261-0b1aa078-be0f-443c-a5d8-fc27a9a66cef.png)
