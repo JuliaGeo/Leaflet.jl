@@ -38,17 +38,17 @@ for provider in providers
     interface = WebIO.render(m)
 end
 
-# Manual test
-# provider = Leaflet.OSM(),
-# provider = Leaflet.NASAGIBS(:VIIRS_CityLights_2012)
-# layers = Leaflet.Layer(GADM.get("MUS").geom[1]; 
-#     color="#ff0201", 
+# # Manual test
+# provider = Providers.OpenStreetMap()
+# provider = Providers.NASAGIBS(:ViirsEarthAtNight2012)
+# layers = Leaflet.Layer(GADM.get("MUS").geom[1];
+#     color="#ff0201",
 #     opacity=0.6,
 #     fill_opacity=0.2,
 # )
-# Combine into a Map
+# # Combine into a Map
 # m = Leaflet.Map(; layers, provider, zoom=3, height=1000);
-# Render as html/javascript
+# # Render as html/javascript
 # interface = WebIO.render(m)
 # using Blink
 # w = Blink.Window()

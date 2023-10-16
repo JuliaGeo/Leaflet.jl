@@ -2,3 +2,6 @@
 *.jl.*.cov
 *.jl.mem
 .vscode/settings.json
+docs/build/
+docs/site/
+Manifest.toml

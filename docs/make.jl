@@ -3,7 +3,7 @@ using Documenter
 
 makedocs(;
     modules=[Leaflet],
-    repo="https://github.com/JuliaGeo/Leaflet.jl/blob/{commit}{path}#{line}",
+    repo=Remotes.GitHub("JuliaGeo", "Leaflet.jl"),
     sitename="Leaflet.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
