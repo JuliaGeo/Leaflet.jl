@@ -15,7 +15,7 @@ WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 [compat]
 Colors = "0.12"
 GeoInterface = "1"
-GeoJSON = "0.6"
+GeoJSON = "0.6, 0.7"
 JSON3 = "1"
 TileProviders = "0.1.0"
 WebIO = "0.8"
