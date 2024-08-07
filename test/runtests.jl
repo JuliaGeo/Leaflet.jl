@@ -18,7 +18,7 @@ providers = (
     Providers.MapBox(; accesstoken="sometoken"),
     Providers.Jawg(; accesstoken="sometoken"),
     Providers.Thunderforest(; apikey="someapikey"),
-    Providers.OpenWeatherMap(:Clouds),
+    Providers.OpenWeatherMap(:Clouds; apikey="some_apikey"),
     Providers.NASAGIBS(:ViirsEarthAtNight2012),
     Providers.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
 )
