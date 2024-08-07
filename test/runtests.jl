@@ -2,6 +2,7 @@ using GADM
 using Leaflet
 using Test
 using WebIO
+using Leaflet: Providers
 
 providers = (
     Providers.OpenStreetMap(),
@@ -10,8 +11,8 @@ providers = (
     Providers.OpenTopoMap(),
     Providers.CartoDB(:DarkMatterNoLabels),
     Providers.Esri(),
-    Providers.Stamen(),
-    Providers.Stamen(:Watercolor),
+    Providers.Stadia(:StamenToner),
+    Providers.Stadia(:StamenWatercolor),
     Providers.CartoDB(:DarkMatter),
     Providers.Google(:hybrid),
     Providers.MapBox(; accesstoken="sometoken"),
