@@ -28,7 +28,7 @@ providers = (
 # actually works in a browser is a much bigger task.
 for provider in providers
     # Make a country outline Layer
-    layers = Leaflet.Layer((GI.geometry(GI.getfeature(GADM.get("MUS"), 1)));
+    layers = Leaflet.Layer((GADM.GeoInterface.geometry(GADM.GeoInterface.getfeature(GADM.get("MUS"), 1)));
         color="#ff0201",
         opacity=0.6,
         fill_opacity=0.2
