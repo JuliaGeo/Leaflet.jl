@@ -17,7 +17,7 @@ or by calling `WebIO.render(yourmap)`.
 
 # Keyword arguments
 
-- `provider = Providers.OSM()`: base layer [`Provider`](@ref).
+- `provider = Providers.OSM()`: base layer [`Provider`](https://juliageo.org/TileProviders.jl/dev/#TileProviders.Provider).
 - `layers`: [`Layer`](@ref) or `Vector{Layer}`.
 - `center::Vector{Float64} = Float64[0.0, 0.0]`: center coordinate.
 - `width::Int = 900`: map width in pixels.
