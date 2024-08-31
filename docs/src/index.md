@@ -4,7 +4,7 @@ CurrentModule = Leaflet
 
 # Leaflet
 
-Documentation for [Leaflet](https://github.com/JuliaGeo/Leaflet.jl).  See the API spec in [the API page](@ref).
+Documentation for [Leaflet](https://github.com/JuliaGeo/Leaflet.jl).  See the API spec in [the API page](@ref API).
 
 ## Quick start
 
