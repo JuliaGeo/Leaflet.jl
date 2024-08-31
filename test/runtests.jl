@@ -2,6 +2,8 @@ using GADM
 using Leaflet
 using Test
 using WebIO
+using Leaflet: Providers
+using Leaflet.GeoInterface
 
 providers = (
     Providers.OpenStreetMap(),
@@ -10,14 +12,14 @@ providers = (
     Providers.OpenTopoMap(),
     Providers.CartoDB(:DarkMatterNoLabels),
     Providers.Esri(),
-    Providers.Stamen(),
-    Providers.Stamen(:Watercolor),
+    Providers.Stadia(:StamenToner),
+    Providers.Stadia(:StamenWatercolor),
     Providers.CartoDB(:DarkMatter),
     Providers.Google(:hybrid),
     Providers.MapBox(; accesstoken="sometoken"),
     Providers.Jawg(; accesstoken="sometoken"),
     Providers.Thunderforest(; apikey="someapikey"),
-    Providers.OpenWeatherMap(:Clouds),
+    Providers.OpenWeatherMap(:Clouds; apikey="some_apikey"),
     Providers.NASAGIBS(:ViirsEarthAtNight2012),
     Providers.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
 )
@@ -27,7 +29,7 @@ providers = (
 # actually works in a browser is a much bigger task.
 for provider in providers
     # Make a country outline Layer
-    layers = Leaflet.Layer(GADM.get("MUS").geom[1];
+    layers = Leaflet.Layer((GeoInterface.geometry(GeoInterface.getfeature(GADM.get("MUS"), 1)));
         color="#ff0201",
         opacity=0.6,
         fill_opacity=0.2
