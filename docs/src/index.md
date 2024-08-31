@@ -9,8 +9,8 @@ Documentation for [Leaflet](https://github.com/JuliaGeo/Leaflet.jl).  See the AP
 ## Quick start
 
 ```julia
-using Leaflet, Blink, GADM
-layers = Leaflet.Layer.([GADM.get("CHN").geom[1], GADM.get("JPN").geom[1]]; color=:orange); 
+using Leaflet, Blink, GADM, GeoInterface
+layers = Leaflet.Layer.([GADM.get("CHN"), GADM.get("JPN")] .|> x -> GeoInterface.getfeature(x, 1) .|> GeoInterface.geometry; color=:orange); 
 provider = Providers.CartoDB()
 m = Leaflet.Map(; layers, provider, zoom=3, height=1000, center=[30.0, 120.0]);
 w = Blink.Window(; body=m)
