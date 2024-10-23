@@ -13,7 +13,7 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 
 [compat]
-Colors = "0.12"
+Colors = "0.12, 0.13"
 GeoInterface = "1"
 GeoJSON = "0.6, 0.7, 0.8"
 JSON3 = "1"
